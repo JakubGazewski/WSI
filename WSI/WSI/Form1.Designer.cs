@@ -32,6 +32,10 @@ namespace WSI
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.boardPictureBox = new System.Windows.Forms.PictureBox();
             this.optionsPanel = new System.Windows.Forms.Panel();
+            this.downButton = new System.Windows.Forms.Button();
+            this.upButton = new System.Windows.Forms.Button();
+            this.leftButton = new System.Windows.Forms.Button();
+            this.rightButton = new System.Windows.Forms.Button();
             this.shuffleButton = new System.Windows.Forms.Button();
             this.BoardSizeNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.boardSizeLabel = new System.Windows.Forms.Label();
@@ -41,10 +45,10 @@ namespace WSI
             this.bothAlgorithmsRadioButton = new System.Windows.Forms.RadioButton();
             this.evolutionAlgorithmRadioButton = new System.Windows.Forms.RadioButton();
             this.geneticAlgorithmRadioButton = new System.Windows.Forms.RadioButton();
-            this.rightButton = new System.Windows.Forms.Button();
-            this.leftButton = new System.Windows.Forms.Button();
-            this.upButton = new System.Windows.Forms.Button();
-            this.downButton = new System.Windows.Forms.Button();
+            this.startButton = new System.Windows.Forms.Button();
+            this.simulationLabel = new System.Windows.Forms.Label();
+            this.iterationLabel = new System.Windows.Forms.Label();
+            this.stopButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -87,6 +91,10 @@ namespace WSI
             // 
             // optionsPanel
             // 
+            this.optionsPanel.Controls.Add(this.stopButton);
+            this.optionsPanel.Controls.Add(this.iterationLabel);
+            this.optionsPanel.Controls.Add(this.simulationLabel);
+            this.optionsPanel.Controls.Add(this.startButton);
             this.optionsPanel.Controls.Add(this.downButton);
             this.optionsPanel.Controls.Add(this.upButton);
             this.optionsPanel.Controls.Add(this.leftButton);
@@ -102,6 +110,46 @@ namespace WSI
             this.optionsPanel.Name = "optionsPanel";
             this.optionsPanel.Size = new System.Drawing.Size(504, 702);
             this.optionsPanel.TabIndex = 0;
+            // 
+            // downButton
+            // 
+            this.downButton.Location = new System.Drawing.Point(66, 294);
+            this.downButton.Name = "downButton";
+            this.downButton.Size = new System.Drawing.Size(50, 50);
+            this.downButton.TabIndex = 10;
+            this.downButton.Text = "Down";
+            this.downButton.UseVisualStyleBackColor = true;
+            this.downButton.Click += new System.EventHandler(this.downButton_Click);
+            // 
+            // upButton
+            // 
+            this.upButton.Location = new System.Drawing.Point(66, 238);
+            this.upButton.Name = "upButton";
+            this.upButton.Size = new System.Drawing.Size(50, 50);
+            this.upButton.TabIndex = 9;
+            this.upButton.Text = "Up";
+            this.upButton.UseVisualStyleBackColor = true;
+            this.upButton.Click += new System.EventHandler(this.upButton_Click);
+            // 
+            // leftButton
+            // 
+            this.leftButton.Location = new System.Drawing.Point(10, 294);
+            this.leftButton.Name = "leftButton";
+            this.leftButton.Size = new System.Drawing.Size(50, 50);
+            this.leftButton.TabIndex = 8;
+            this.leftButton.Text = "Left";
+            this.leftButton.UseVisualStyleBackColor = true;
+            this.leftButton.Click += new System.EventHandler(this.leftButton_Click);
+            // 
+            // rightButton
+            // 
+            this.rightButton.Location = new System.Drawing.Point(122, 294);
+            this.rightButton.Name = "rightButton";
+            this.rightButton.Size = new System.Drawing.Size(50, 50);
+            this.rightButton.TabIndex = 7;
+            this.rightButton.Text = "Right";
+            this.rightButton.UseVisualStyleBackColor = true;
+            this.rightButton.Click += new System.EventHandler(this.rightButton_Click);
             // 
             // shuffleButton
             // 
@@ -175,6 +223,7 @@ namespace WSI
             0,
             0,
             0});
+            this.maxNumberOfIterationsNumericUpDown.ValueChanged += new System.EventHandler(this.maxNumberOfIterationsNumericUpDown_ValueChanged);
             // 
             // algorithmComboBox
             // 
@@ -222,45 +271,43 @@ namespace WSI
             this.geneticAlgorithmRadioButton.UseCompatibleTextRendering = true;
             this.geneticAlgorithmRadioButton.UseVisualStyleBackColor = true;
             // 
-            // rightButton
+            // startButton
             // 
-            this.rightButton.Location = new System.Drawing.Point(122, 294);
-            this.rightButton.Name = "rightButton";
-            this.rightButton.Size = new System.Drawing.Size(50, 50);
-            this.rightButton.TabIndex = 7;
-            this.rightButton.Text = "Right";
-            this.rightButton.UseVisualStyleBackColor = true;
-            this.rightButton.Click += new System.EventHandler(this.rightButton_Click);
+            this.startButton.Location = new System.Drawing.Point(10, 369);
+            this.startButton.Name = "startButton";
+            this.startButton.Size = new System.Drawing.Size(75, 23);
+            this.startButton.TabIndex = 11;
+            this.startButton.Text = "Start";
+            this.startButton.UseVisualStyleBackColor = true;
+            this.startButton.Click += new System.EventHandler(this.startButton_Click);
             // 
-            // leftButton
+            // simulationLabel
             // 
-            this.leftButton.Location = new System.Drawing.Point(10, 294);
-            this.leftButton.Name = "leftButton";
-            this.leftButton.Size = new System.Drawing.Size(50, 50);
-            this.leftButton.TabIndex = 8;
-            this.leftButton.Text = "Left";
-            this.leftButton.UseVisualStyleBackColor = true;
-            this.leftButton.Click += new System.EventHandler(this.leftButton_Click);
+            this.simulationLabel.AutoSize = true;
+            this.simulationLabel.Location = new System.Drawing.Point(10, 351);
+            this.simulationLabel.Name = "simulationLabel";
+            this.simulationLabel.Size = new System.Drawing.Size(64, 15);
+            this.simulationLabel.TabIndex = 12;
+            this.simulationLabel.Text = "Simulation";
             // 
-            // upButton
+            // iterationLabel
             // 
-            this.upButton.Location = new System.Drawing.Point(66, 238);
-            this.upButton.Name = "upButton";
-            this.upButton.Size = new System.Drawing.Size(50, 50);
-            this.upButton.TabIndex = 9;
-            this.upButton.Text = "Up";
-            this.upButton.UseVisualStyleBackColor = true;
-            this.upButton.Click += new System.EventHandler(this.upButton_Click);
+            this.iterationLabel.AutoSize = true;
+            this.iterationLabel.Location = new System.Drawing.Point(10, 399);
+            this.iterationLabel.Name = "iterationLabel";
+            this.iterationLabel.Size = new System.Drawing.Size(97, 15);
+            this.iterationLabel.TabIndex = 13;
+            this.iterationLabel.Text = "Iterations: 0/1000";
             // 
-            // downButton
+            // stopButton
             // 
-            this.downButton.Location = new System.Drawing.Point(66, 294);
-            this.downButton.Name = "downButton";
-            this.downButton.Size = new System.Drawing.Size(50, 50);
-            this.downButton.TabIndex = 10;
-            this.downButton.Text = "Down";
-            this.downButton.UseVisualStyleBackColor = true;
-            this.downButton.Click += new System.EventHandler(this.downButton_Click);
+            this.stopButton.Location = new System.Drawing.Point(10, 418);
+            this.stopButton.Name = "stopButton";
+            this.stopButton.Size = new System.Drawing.Size(75, 23);
+            this.stopButton.TabIndex = 14;
+            this.stopButton.Text = "Stop";
+            this.stopButton.UseVisualStyleBackColor = true;
+            this.stopButton.Click += new System.EventHandler(this.stopButton_Click);
             // 
             // Form1
             // 
@@ -303,6 +350,10 @@ namespace WSI
         private System.Windows.Forms.Button upButton;
         private System.Windows.Forms.Button leftButton;
         private System.Windows.Forms.Button rightButton;
+        private System.Windows.Forms.Label iterationLabel;
+        private System.Windows.Forms.Label simulationLabel;
+        private System.Windows.Forms.Button startButton;
+        private System.Windows.Forms.Button stopButton;
     }
 }
 

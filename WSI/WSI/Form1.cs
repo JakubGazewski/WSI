@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WSI.AlgorithmStuff;
 using WSI.UI_stuff;
 
 namespace WSI
@@ -68,6 +69,67 @@ namespace WSI
         {
             board.Move(Moves.Right);
             boardPictureBox.Invalidate();
+        }
+
+        private void maxNumberOfIterationsNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            iterationLabel.Text = "Iterations: 0/" + maxNumberOfIterationsNumericUpDown.Value.ToString();
+        }
+
+        private void startButton_Click(object sender, EventArgs e)
+        {
+            geneticAlgorithmRadioButton.Enabled = false;
+            evolutionAlgorithmRadioButton.Enabled = false;
+            bothAlgorithmsRadioButton.Enabled = false;
+            maxNumberOfIterationsNumericUpDown.Enabled = false;
+            BoardSizeNumericUpDown.Enabled = false;
+            shuffleButton.Enabled = false;
+            upButton.Enabled = false;
+            leftButton.Enabled = false;
+            downButton.Enabled = false;
+            rightButton.Enabled = false;
+            startButton.Enabled = false;
+            stopButton.Enabled = true;
+            AlgorithmChoice algoChoice;
+            if (geneticAlgorithmRadioButton.Checked) algoChoice = AlgorithmChoice.Genetic;
+            else if (evolutionAlgorithmRadioButton.Checked) algoChoice = AlgorithmChoice.Evolution;
+            else algoChoice = AlgorithmChoice.Both;
+            someCalculationFunction(algoChoice, (int)maxNumberOfIterationsNumericUpDown.Value);
+        }
+        private void someCalculationFunction(AlgorithmChoice choice, int maxIterations)
+        {
+            for(int i = 1; i <= maxIterations; i++)
+            {
+                iterationLabel.Text = "Iterations: " + i +  "/" + maxNumberOfIterationsNumericUpDown.Value.ToString();
+                // something something
+            }
+            geneticAlgorithmRadioButton.Enabled = true;
+            evolutionAlgorithmRadioButton.Enabled = true;
+            bothAlgorithmsRadioButton.Enabled = true;
+            maxNumberOfIterationsNumericUpDown.Enabled = true;
+            BoardSizeNumericUpDown.Enabled = true;
+            shuffleButton.Enabled = true;
+            upButton.Enabled = true;
+            leftButton.Enabled = true;
+            downButton.Enabled = true;
+            rightButton.Enabled = true;
+            startButton.Enabled = true;
+            stopButton.Enabled = false;
+        }
+        private void stopButton_Click(object sender, EventArgs e)
+        {
+            geneticAlgorithmRadioButton.Enabled = true;
+            evolutionAlgorithmRadioButton.Enabled = true;
+            bothAlgorithmsRadioButton.Enabled = true;
+            maxNumberOfIterationsNumericUpDown.Enabled = true;
+            BoardSizeNumericUpDown.Enabled = true;
+            shuffleButton.Enabled = true;
+            upButton.Enabled = true;
+            leftButton.Enabled = true;
+            downButton.Enabled = true;
+            rightButton.Enabled = true;
+            startButton.Enabled = true;
+            stopButton.Enabled = false;
         }
     }
 }
