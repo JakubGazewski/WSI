@@ -12,7 +12,7 @@ namespace WSI.AlgorithmStuff
     {
         readonly Array moves = Enum.GetValues(typeof(Allel));
         readonly Random random = new();
-        public readonly WrongMoveReaction wrongMoveReaction = WrongMoveReaction.ignore;
+        public readonly WrongMoveReaction wrongMoveReaction = WrongMoveReaction.repeatDraw;
 
         public void AddGene(ref StringBuilder chromosome)
         {
@@ -77,7 +77,10 @@ namespace WSI.AlgorithmStuff
                         AddGene(ref newChromosome);
                     else
                         MutateGene(ref newChromosome);
-                    if(Check(newChromosome, boardWidth, boardHeight, emptyTileX, emptyTileY)) canGoOn = true;
+                    if (Check(chromosome, boardWidth, boardHeight, emptyTileX, emptyTileY))
+                        canGoOn = true;
+                    else
+                        chromosome.Remove(chromosome.Length - 1, 1);
                 } while (!canGoOn);
 
             }

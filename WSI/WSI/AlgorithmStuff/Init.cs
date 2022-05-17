@@ -37,7 +37,10 @@ namespace WSI.AlgorithmStuff
                     do
                     {
                         mutation.AddGene(ref chromosome);
-                        if (mutation.Check(chromosome, _boardWidth, _boardHeight, _emptyTileX, _emptyTileY)) canGoOn = true;
+                        if (mutation.Check(chromosome, _boardWidth, _boardHeight, _emptyTileX, _emptyTileY))
+                            canGoOn = true;
+                        else
+                            chromosome.Remove(chromosome.Length - 1, 1);
                     } while (!canGoOn);
                 }
                 chromosomes.Add(chromosome);
