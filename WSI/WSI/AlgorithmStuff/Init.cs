@@ -33,8 +33,8 @@ namespace WSI.AlgorithmStuff
                 StringBuilder chromosome = new StringBuilder();
                 for(int j = 0; j < chromosomesLength; j++)
                 {
-                    bool canGoOn = mutation.wrongMoveReaction == WrongMoveReaction.ignore ? true : false;
-                    mutation.AddGene(ref chromosome,_boardWidth, _boardHeight, _emptyTileX, _emptyTileY,canGoOn);
+                    bool checking = mutation.wrongMoveReaction == WrongMoveReaction.repeatDraw;
+                    mutation.AddGene(ref chromosome,_boardWidth, _boardHeight, _emptyTileX, _emptyTileY,checking);
                 }
                 chromosomes.Add(chromosome);
             }

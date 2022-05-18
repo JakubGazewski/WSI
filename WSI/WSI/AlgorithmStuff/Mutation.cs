@@ -13,19 +13,19 @@ namespace WSI.AlgorithmStuff
         readonly Random random = new();
         public readonly WrongMoveReaction wrongMoveReaction = WrongMoveReaction.repeatDraw;
 
-        public void AddGene(ref StringBuilder chromosome, int boardWidth, int boardHeight, int emptyTileX, int emptyTileY, bool canGoOn)
+        public void AddGene(ref StringBuilder chromosome, int boardWidth, int boardHeight, int emptyTileX, int emptyTileY, bool checking)
         {
             Allel randomMove = (Allel)moves.GetValue(random.Next(moves.Length));
             chromosome.Append((char)randomMove);
 
-            while (!Check(chromosome, boardWidth, boardHeight, emptyTileX, emptyTileY) && canGoOn)
+            while (!Check(chromosome, boardWidth, boardHeight, emptyTileX, emptyTileY) && checking)
             {
                 randomMove = (Allel)moves.GetValue(random.Next(moves.Length));
                 chromosome[chromosome.Length - 1] = (char)randomMove;
             }
         }
 
-        public void MutateGene(ref StringBuilder chromosome, int index, int boardWidth, int boardHeight, int emptyTileX, int emptyTileY, bool canGoOn)
+        public void MutateGene(ref StringBuilder chromosome, int index, int boardWidth, int boardHeight, int emptyTileX, int emptyTileY, bool checking)
         {
             //int randomIndex = random.Next(chromosome.Length);
             //Console.WriteLine(index);
@@ -34,7 +34,7 @@ namespace WSI.AlgorithmStuff
                 Allel randomMove = (Allel)moves.GetValue(random.Next(moves.Length));
                 //Console.WriteLine(randomMove);
                 chromosome[index] = (char)randomMove;
-            } while (!Check(chromosome, boardWidth, boardHeight, emptyTileX, emptyTileY) && canGoOn);
+            } while (!Check(chromosome, boardWidth, boardHeight, emptyTileX, emptyTileY) && checking);
         }
 
         public bool Check(StringBuilder chromosome, int boardWidth, int boardHeight, int emptyTileX, int emptyTileY) //sprawdzenie czy nie ma ruchu poza planszę w wyniku mutacji
@@ -81,12 +81,12 @@ namespace WSI.AlgorithmStuff
                     //Console.WriteLine($"addDraw: {addDraw}");
                     StringBuilder newChromosome = chromosome;
 
-                    bool canGoOn = wrongMoveReaction == WrongMoveReaction.ignore ? true : false;
+                    bool checking = wrongMoveReaction == WrongMoveReaction.repeatDraw;
 
                     if (addDraw < add_vs_mutate_chance)
-                        AddGene(ref newChromosome, boardWidth, boardHeight, emptyTileX, emptyTileY, canGoOn);
+                        AddGene(ref newChromosome, boardWidth, boardHeight, emptyTileX, emptyTileY, checking);
                     else
-                        MutateGene(ref newChromosome, index, boardWidth, boardHeight, emptyTileX, emptyTileY, canGoOn);
+                        MutateGene(ref newChromosome, index, boardWidth, boardHeight, emptyTileX, emptyTileY, checking);
                 }
             } while (++index < chromosome.Length && allGenes);
         }
