@@ -7,26 +7,34 @@ using WSI.UI_stuff;
 
 namespace WSI.AlgorithmStuff
 {
-    
     class Mutation
     {
         readonly Array moves = Enum.GetValues(typeof(Allel));
         readonly Random random = new();
         public readonly WrongMoveReaction wrongMoveReaction = WrongMoveReaction.repeatDraw;
 
-        public void AddGene(ref StringBuilder chromosome)
+        public void AddGene(ref StringBuilder chromosome, int boardWidth, int boardHeight, int emptyTileX, int emptyTileY, bool canGoOn)
         {
             Allel randomMove = (Allel)moves.GetValue(random.Next(moves.Length));
             chromosome.Append((char)randomMove);
+
+            while (!Check(chromosome, boardWidth, boardHeight, emptyTileX, emptyTileY) && canGoOn)
+            {
+                randomMove = (Allel)moves.GetValue(random.Next(moves.Length));
+                chromosome[chromosome.Length - 1] = (char)randomMove;
+            }
         }
 
-        public void MutateGene(ref StringBuilder chromosome)
+        public void MutateGene(ref StringBuilder chromosome, int index, int boardWidth, int boardHeight, int emptyTileX, int emptyTileY, bool canGoOn)
         {
-            int randomIndex = random.Next(chromosome.Length);
-            //Console.WriteLine(randomIndex);
-            Allel randomMove = (Allel)moves.GetValue(random.Next(moves.Length));
-            //Console.WriteLine(randomMove);
-            chromosome[randomIndex] = (char)randomMove;
+            //int randomIndex = random.Next(chromosome.Length);
+            //Console.WriteLine(index);
+            do
+            {
+                Allel randomMove = (Allel)moves.GetValue(random.Next(moves.Length));
+                //Console.WriteLine(randomMove);
+                chromosome[index] = (char)randomMove;
+            } while (!Check(chromosome, boardWidth, boardHeight, emptyTileX, emptyTileY) && canGoOn);
         }
 
         public bool Check(StringBuilder chromosome, int boardWidth, int boardHeight, int emptyTileX, int emptyTileY) //sprawdzenie czy nie ma ruchu poza planszę w wyniku mutacji
@@ -60,30 +68,27 @@ namespace WSI.AlgorithmStuff
         }
 
         //wartości mutate_chance i add_vs_mutate_chance od 0 do 100
-        public void Mutate(ref StringBuilder chromosome, int mutate_chance, int add_vs_mutate_chance, int boardWidth, int boardHeight, int emptyTileX = 0, int emptyTileY = 0) 
+        public void Mutate(ref StringBuilder chromosome, int mutate_chance, int add_vs_mutate_chance, int boardWidth, int boardHeight, int emptyTileX = 0, int emptyTileY = 0, bool allGenes = false) 
         {
-            int mutationDraw = random.Next(100);
-            //Console.WriteLine(chance);
-            if (mutationDraw < mutate_chance)
+            int index = allGenes ? 0 : random.Next(chromosome.Length);
+            do
             {
-                int addDraw = random.Next(100);
-                //Console.WriteLine(chance2);
-                StringBuilder newChromosome = chromosome;
-
-                bool canGoOn = wrongMoveReaction == WrongMoveReaction.ignore ? true : false;
-                do
+                int mutationDraw = random.Next(100);
+                //Console.WriteLine($"mutationDraw: {mutationDraw}");
+                if (mutationDraw < mutate_chance)
                 {
-                    if (addDraw < add_vs_mutate_chance)
-                        AddGene(ref newChromosome);
-                    else
-                        MutateGene(ref newChromosome);
-                    if (Check(chromosome, boardWidth, boardHeight, emptyTileX, emptyTileY))
-                        canGoOn = true;
-                    else
-                        chromosome.Remove(chromosome.Length - 1, 1);
-                } while (!canGoOn);
+                    int addDraw = allGenes ? 101 : random.Next(100);
+                    //Console.WriteLine($"addDraw: {addDraw}");
+                    StringBuilder newChromosome = chromosome;
 
-            }
+                    bool canGoOn = wrongMoveReaction == WrongMoveReaction.ignore ? true : false;
+
+                    if (addDraw < add_vs_mutate_chance)
+                        AddGene(ref newChromosome, boardWidth, boardHeight, emptyTileX, emptyTileY, canGoOn);
+                    else
+                        MutateGene(ref newChromosome, index, boardWidth, boardHeight, emptyTileX, emptyTileY, canGoOn);
+                }
+            } while (++index < chromosome.Length && allGenes);
         }
     }
 }
