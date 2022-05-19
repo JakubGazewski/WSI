@@ -13,9 +13,10 @@ namespace WSI.AlgorithmStuff
         private static readonly Random random = new();
 
         //wartości mutateChance i addVsMutateChance od 0 do 100
-        public static int mutateChance { set; get; } = 50;
-        public static int addVsMutateChance { set; get; } = 20;
-        public static bool allGenes { set; get; } = false;
+        public static int MutateChance { set; get; } = 50;
+        public static int AddVsMutateChance { set; get; } = 20;
+        public static int AllVsOneChance { set; get; } = 20;
+        public static bool AllGenes { set; get; } = false;
 
         public static void AddGene(Chromosome chromosome)
         {
@@ -25,35 +26,70 @@ namespace WSI.AlgorithmStuff
             while (!chromosome.CheckCorectness() && Chromosome.repeating)
             {
                 randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
-                chromosome[chromosome.Length - 1] = (char)randomMove;
+                chromosome[^1] = (char)randomMove;
             }
         }
 
-        public static void MutateGene(Chromosome chromosome, int index)
+        public static void MutateGene(Chromosome chromosome, int locus)
         {
             do
             {
                 Allel randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
-                chromosome[index] = (char)randomMove;
+                chromosome[locus] = (char)randomMove;
             } while (!chromosome.CheckCorectness() && Chromosome.repeating);
+        }
+
+        public static void TryMutateAllGenes(Chromosome chromosome)
+        {
+            for(int i=0;i<chromosome.Length;i++)
+            {
+                int mutationDraw = random.Next(100);
+                if (mutationDraw < MutateChance)
+                    MutateGene(chromosome, i);
+            }
         }
 
         public static void Mutate(Chromosome chromosome) 
         {
-            int index = allGenes ? 0 : random.Next(chromosome.Length);
+            int locus = AllGenes ? 0 : random.Next(chromosome.Length);
             do
             {
                 int mutationDraw = random.Next(100);
-                if (mutationDraw < mutateChance)
+                if (mutationDraw < MutateChance)
                 {
-                    int addDraw = allGenes ? 101 : random.Next(100);
+                    int addDraw = AllGenes ? 101 : random.Next(100);
 
-                    if (addDraw < addVsMutateChance)
+                    if (addDraw < AddVsMutateChance)
                         AddGene(chromosome);
                     else
-                        MutateGene(chromosome, index);
+                        MutateGene(chromosome, locus);
                 }
-            } while (++index < chromosome.Length && allGenes);
+            } while (++locus < chromosome.Length && AllGenes);
+        }
+
+        public static void MutateV2(Chromosome chromosome)
+        {
+
+            int mutationDraw = random.Next(100);
+            int allVsOnedraw = random.Next(100);
+            int addDraw = random.Next(100);
+            if(mutationDraw<MutateChance)
+            {
+                if(allVsOnedraw < AllVsOneChance)
+                {
+                    if (addDraw < AddVsMutateChance)
+                        AddGene(chromosome);
+                    else
+                        TryMutateAllGenes(chromosome);
+                }
+                else
+                {
+                    if (addDraw < AddVsMutateChance)
+                        AddGene(chromosome);
+                    else
+                        MutateGene(chromosome, random.Next(chromosome.Length));
+                }
+            }
         }
     }
 }
