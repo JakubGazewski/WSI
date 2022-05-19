@@ -20,22 +20,17 @@ namespace WSI.AlgorithmStuff
         public static void AddGene(Chromosome chromosome)
         {
             Allel randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
-            chromosome.sequence.Append((char)randomMove);
+            chromosome += randomMove;
 
-            while (!chromosome.CheckCorectness() && Chromosome.repeating)
-            {
-                randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
-                chromosome[chromosome.Length - 1] = (char)randomMove;
-            }
+            chromosome.Correct();
         }
 
         public static void MutateGene(Chromosome chromosome, int index)
         {
-            do
-            {
-                Allel randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
-                chromosome[index] = (char)randomMove;
-            } while (!chromosome.CheckCorectness() && Chromosome.repeating);
+            Allel randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
+            chromosome[index] = (char)randomMove;
+
+            chromosome.Correct();
         }
 
         public static void Mutate(Chromosome chromosome) 

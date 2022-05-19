@@ -10,13 +10,18 @@ namespace WSI.AlgorithmStuff
     {
         private static readonly WrongMoveReaction wrongMoveReaction = WrongMoveReaction.repeatDraw;
         public static bool repeating { get => wrongMoveReaction == WrongMoveReaction.repeatDraw; }
-        
+        private static readonly Array possibleMoves = Enum.GetValues(typeof(Allel));
+        private static readonly Random random = new();
+
         public StringBuilder sequence { get; }
         public char this[int ind]
         {
             get => sequence[ind];
             set => sequence[ind] = value;
         }
+        public static Chromosome operator + (Chromosome chromosome, Allel allel)
+        { chromosome.sequence.Append((char)allel); return chromosome; }
+
         public int Length
         {
             get => sequence.Length;
@@ -54,6 +59,58 @@ namespace WSI.AlgorithmStuff
                     return false;
             }
             return true;
+        }
+
+        // przechodzi jeden raz po całym chromosomie, losując jeszcze raz allel tam, gdzie biale pole wychodzi poza planszę
+        public void Correct()
+        {
+            if (!repeating) return;
+            
+            int emptyTileX = emptyTileStartX, emptyTileY = emptyTileStartY;
+            for (int i = 0; i < sequence.Length; i++)
+            {
+                int tempEmptyTileX = emptyTileX, tempEmptyTileY = emptyTileY;
+
+                switch (sequence[i])
+                {
+                    case 'U':
+                        emptyTileY--;
+                        break;
+                    case 'D':
+                        emptyTileY++;
+                        break;
+                    case 'R':
+                        emptyTileX++;
+                        break;
+                    case 'L':
+                        emptyTileX--;
+                        break;
+                }
+
+                while (emptyTileX < 0 || emptyTileX >= boardWidth || emptyTileY < 0 || emptyTileY >= boardHeight)
+                {
+                    Allel randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
+                    sequence[i] = (char)randomMove;
+
+                    emptyTileX = tempEmptyTileX; emptyTileY = tempEmptyTileY;
+
+                    switch (sequence[i])
+                    {
+                        case 'U':
+                            emptyTileY--;
+                            break;
+                        case 'D':
+                            emptyTileY++;
+                            break;
+                        case 'R':
+                            emptyTileX++;
+                            break;
+                        case 'L':
+                            emptyTileX--;
+                            break;
+                    }
+                }
+            }
         }
 
         public static int boardWidth { get; private set; } = 3;
