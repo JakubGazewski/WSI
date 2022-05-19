@@ -8,7 +8,7 @@ namespace WSI.AlgorithmStuff
 {
     class Population
     {
-        readonly Random random = new Random();
+        readonly Random random = new();
         public IList<Chromosome> Parents { get; set; }
         public IList<Chromosome> Children { get; set; }
 
