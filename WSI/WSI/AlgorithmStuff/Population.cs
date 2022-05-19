@@ -11,13 +11,14 @@ namespace WSI.AlgorithmStuff
         readonly Random random = new();
         public IList<Chromosome> Parents { get; set; }
         public IList<Chromosome> Children { get; set; }
+        public int Count { get; set; }
 
         public delegate double Del(Chromosome chromosome);
         public Del FitnessFunction { get; set; }
 
-        public void SelectByRoulette(bool bothPopulations)
+        public IList<Chromosome> SelectByRoulette(bool bothPopulations)
         {
-            List<Chromosome> pom = new List<Chromosome>(Parents.Concat(Children));
+            List<Chromosome> pom = new(Parents.Concat(Children));
             if (!bothPopulations)
                 pom = (List<Chromosome>)Children;
 
@@ -35,9 +36,9 @@ namespace WSI.AlgorithmStuff
                 roulettePercents[i] = (FitnessFunction(pom[i]) / FitenssSum) * 100 + roulettePercents[i - 1];
             }
 
-            List<Chromosome> newPopulation = new List<Chromosome>();
+            List<Chromosome> newPopulation = new();
 
-            for (int i = 0; i < Parents.Count; i++)
+            for (int i = 0; i < Count; i++)
             {
                 int makeDraw = random.Next(100);
                 for (int j = 0; j < pom.Count; j++)
@@ -49,21 +50,22 @@ namespace WSI.AlgorithmStuff
                     }
                 }
             }
-            Parents = newPopulation;
+            return newPopulation;
         }
 
-        public void SelectBests() //wybieramy z największą wartością funkcji przyswtosowania
+        public IList<Chromosome> SelectBests() //wybieramy z największą wartością funkcji przyswtosowania
         {
-            int count = Parents.Count;
+            //int count = Parents.Count;
             List<Chromosome> p = (List<Chromosome>)Parents;
             p.AddRange(Children);
             p.Sort(CompareByFitnessFunction);
-            Parents = p.GetRange(0, count);
+            return p.GetRange(0, Count);
         }
 
-        public void SelectChildren()
+        public IList<Chromosome> SelectChildren()
         {
-            Parents = Children;
+            List<Chromosome> pom = (List<Chromosome>)Children;
+            return pom.GetRange(0,Count);
         }
 
         private int CompareByFitnessFunction(Chromosome chr1, Chromosome chr2)
