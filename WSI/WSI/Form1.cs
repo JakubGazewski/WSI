@@ -39,7 +39,7 @@ namespace WSI
         {
             Random r = new Random();
             int move;
-            for(int i = 0; i < 3; i++)
+            for(int i = 0; i < 100; i++)
             {
                 move = r.Next(0, 4);
                 board.Move((Moves)move);
