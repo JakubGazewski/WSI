@@ -13,8 +13,10 @@ namespace WSI.UI_stuff
         public Bitmap image;
         public int emptyTileX;
         public int emptyTileY;
+        public int size;
         public Board(int size, Bitmap image)
         {
+            this.size = size;
             this.image = image;
             tiles = new Tile[size, size];
             for(int x = 0; x < size; x++)

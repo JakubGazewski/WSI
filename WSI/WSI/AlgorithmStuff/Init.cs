@@ -8,9 +8,9 @@ namespace WSI.AlgorithmStuff
 {
     public static class Init
     {
-        public static IList<Chromosome> GetStartngChromosomes(int chromosomesNumber, int chromosomesLength)
+        public static List<Chromosome> GetStartngChromosomes(int chromosomesNumber, int chromosomesLength)
         {
-            IList <Chromosome> chromosomes = new List<Chromosome>();
+            List <Chromosome> chromosomes = new List<Chromosome>();
 
             for (int i = 0; i < chromosomesNumber; i++)
             {
