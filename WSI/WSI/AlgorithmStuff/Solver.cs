@@ -214,6 +214,8 @@ namespace WSI.AlgorithmStuff
 
             population.Parents = population.Sort(population.Parents);
 
+            Debug.WriteLine($"Genetic final solution fitness: {FitnessFunctionManhattanDistance(population.Parents[0])}");
+
             return (population.Parents[0].sequence, iterationCount);
         }
 
@@ -333,6 +335,8 @@ namespace WSI.AlgorithmStuff
             }
 
             population.Parents = population.Sort(population.Parents);
+
+            Debug.WriteLine($"Evolutionary final solution fitness: {FitnessFunctionManhattanDistance(population.Parents[0])}");
 
             return (population.Parents[0].sequence, iterationCount);
         }
