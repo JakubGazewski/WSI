@@ -109,5 +109,10 @@ namespace WSI.UI_stuff
                     return false;
             }
         }
+        public Board deepCopy()
+        {
+            Board result = new Board(size, image);
+            return result;
+        }
     }
 }
