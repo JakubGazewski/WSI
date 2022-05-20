@@ -17,6 +17,12 @@ namespace WSI
         private Board board;
         private Bitmap boardImage;
         private Size pictureSize = new Size(600, 600);
+        private StringBuilder geneticSolution = null;
+        private StringBuilder evolutionSolution = null;
+        private AlgorithmChoice currentCheckedAlgorithm = AlgorithmChoice.None;
+        private StringBuilder currentCheckedSolution = null;
+        private int currentCheckedStep;
+        private Board originalSolutionBoard;
         public Form1()
         {
             InitializeComponent();
@@ -89,7 +95,6 @@ namespace WSI
             downButton.Enabled = false;
             rightButton.Enabled = false;
             startButton.Enabled = false;
-            stopButton.Enabled = true;
             AlgorithmChoice algoChoice;
             if (geneticAlgorithmRadioButton.Checked) algoChoice = AlgorithmChoice.Genetic;
             else if (evolutionAlgorithmRadioButton.Checked) algoChoice = AlgorithmChoice.Evolution;
@@ -98,12 +103,47 @@ namespace WSI
         }
         private void someCalculationFunction(AlgorithmChoice choice, int maxIterations)
         {
-            for(int i = 1; i <= maxIterations; i++)
+            Solver puzzleSolver = new Solver(board);
+            StringBuilder solution1;
+            int solution1Steps;
+            StringBuilder solution2;
+            int solution2Steps;
+            originalSolutionBoard = board.deepCopy();
+            (solution1, solution1Steps, solution2, solution2Steps) = puzzleSolver.SolvePuzzle(maxIterations, choice).Result;
+            switch(choice)
             {
-                iterationLabel.Text = "Iterations: " + i +  "/" + maxNumberOfIterationsNumericUpDown.Value.ToString();
-                // something something
+                case AlgorithmChoice.Genetic:
+                    geneticUsedIterationsLabel.Text = "Used iterations: " + solution1Steps;
+                    geneticResultSelectButton.Enabled = true;
+                    geneticSolution = solution1;
+                    currentCheckedAlgorithm = AlgorithmChoice.Genetic;
+                    currentCheckedSolution = geneticSolution;
+                    break;
+                case AlgorithmChoice.Evolution:
+                    evolutionUsedIterationsLabel.Text = "Used iterations: " + solution1Steps;
+                    evolutionResultSelectionButton.Enabled = true;
+                    evolutionSolution = solution1;
+                    currentCheckedAlgorithm = AlgorithmChoice.Evolution;
+                    currentCheckedSolution = evolutionSolution;
+                    break;
+                case AlgorithmChoice.Both:
+                    geneticUsedIterationsLabel.Text = "Used iterations: " + solution1Steps;
+                    geneticResultSelectButton.Enabled = true;
+                    geneticSolution = solution1;
+                    evolutionUsedIterationsLabel.Text = "Used iterations: " + solution2Steps;
+                    evolutionResultSelectionButton.Enabled = true;
+                    evolutionSolution = solution2;
+                    currentCheckedAlgorithm = AlgorithmChoice.Genetic;
+                    currentCheckedSolution = geneticSolution;
+                    break;
+                case AlgorithmChoice.None:
+                    break;
             }
-            geneticAlgorithmRadioButton.Enabled = true;
+            currentCheckedStep = 0;
+            endCheckingSolutionButton.Enabled = true;
+            leftStepButton.Enabled = true;
+            rightStepButton.Enabled = true;
+            /*geneticAlgorithmRadioButton.Enabled = true;
             evolutionAlgorithmRadioButton.Enabled = true;
             bothAlgorithmsRadioButton.Enabled = true;
             maxNumberOfIterationsNumericUpDown.Enabled = true;
@@ -113,11 +153,115 @@ namespace WSI
             leftButton.Enabled = true;
             downButton.Enabled = true;
             rightButton.Enabled = true;
-            startButton.Enabled = true;
-            stopButton.Enabled = false;
+            startButton.Enabled = true;*/
+            updateSolutionScroller();
         }
-        private void stopButton_Click(object sender, EventArgs e)
+        private void updateSolutionScroller()
         {
+            board = originalSolutionBoard.deepCopy();
+            currentCheckedStep = 0;
+            switch (currentCheckedAlgorithm)
+            {
+                case AlgorithmChoice.Genetic:
+                    stepLabel.Text = "Step 0/" + geneticSolution.Length;
+                    currentCheckedSolution = geneticSolution;
+                    break;
+                case AlgorithmChoice.Evolution:
+                    stepLabel.Text = "Step 0/" + evolutionSolution.Length;
+                    currentCheckedSolution = evolutionSolution;
+                    break;
+            }
+            leftStepButton.Enabled = false;
+            if (currentCheckedSolution.Length == 0) rightStepButton.Enabled = false;
+            else rightStepButton.Enabled = true;
+            boardPictureBox.Invalidate();
+        }
+        private Moves translateMove(char c)
+        {
+            switch(c)
+            {
+                case 'U':
+                    return Moves.Up;
+                case 'D':
+                    return Moves.Down;
+                case 'L':
+                    return Moves.Left;
+                case 'R':
+                    return Moves.Right;
+                default:
+                    throw new ArgumentException();
+            }
+        }
+        private Moves negateMove(Moves moveToNegate)
+        {
+            switch(moveToNegate)
+            {
+                case Moves.Up:
+                    return Moves.Down;
+                case Moves.Down:
+                    return Moves.Up;
+                case Moves.Left:
+                    return Moves.Right;
+                case Moves.Right:
+                    return Moves.Left;
+                default:
+                    throw new ArgumentException();
+            }
+        }
+        private void leftStepButton_Click(object sender, EventArgs e)
+        {
+            char moveInChar = currentCheckedSolution[currentCheckedStep - 1];
+            Moves moveToMake = translateMove(moveInChar);
+            moveToMake = negateMove(moveToMake);
+            board.Move(moveToMake);
+            currentCheckedStep--;
+            if (currentCheckedStep == 0) leftStepButton.Enabled = false;
+            if (currentCheckedStep != currentCheckedSolution.Length) rightStepButton.Enabled = true;
+            stepLabel.Text = "Step " + currentCheckedStep + "/" + currentCheckedSolution.Length;
+            boardPictureBox.Invalidate();
+        }
+        private void rightStepButton_Click(object sender, EventArgs e)
+        {
+            char moveInChar = currentCheckedSolution[currentCheckedStep];
+            Moves moveToMake = translateMove(moveInChar);
+            board.Move(moveToMake);
+            currentCheckedStep++;
+            if (currentCheckedStep == currentCheckedSolution.Length) rightStepButton.Enabled = false;
+            if (currentCheckedStep != 0) leftStepButton.Enabled = true;
+            stepLabel.Text = "Step " + currentCheckedStep + "/" + currentCheckedSolution.Length;
+            boardPictureBox.Invalidate();
+        }
+
+        private void geneticResultSelectButton_Click(object sender, EventArgs e)
+        {
+            currentCheckedAlgorithm = AlgorithmChoice.Genetic;
+            updateSolutionScroller();
+        }
+
+        private void evolutionResultSelectionButton_Click(object sender, EventArgs e)
+        {
+            currentCheckedAlgorithm = AlgorithmChoice.Evolution;
+            updateSolutionScroller();
+        }
+
+        private void endCheckingSolutionButton_Click(object sender, EventArgs e)
+        {
+            endCheckingSolutionButton.Enabled = false;
+            endCheckingSolutionButton.Enabled = false;
+            leftStepButton.Enabled = false;
+            rightStepButton.Enabled = false;
+            geneticUsedIterationsLabel.Text = "Used iterations:";
+            geneticResultSelectButton.Enabled = false;
+            geneticSolution = null;
+            evolutionUsedIterationsLabel.Text = "Used iterations:";
+            evolutionResultSelectionButton.Enabled = false;
+            evolutionSolution = null;
+            currentCheckedAlgorithm = AlgorithmChoice.None;
+            currentCheckedSolution = null;
+            board = new Board((int)BoardSizeNumericUpDown.Value, boardImage);
+            boardPictureBox.Invalidate();
+            currentCheckedStep = 0;
+
             geneticAlgorithmRadioButton.Enabled = true;
             evolutionAlgorithmRadioButton.Enabled = true;
             bothAlgorithmsRadioButton.Enabled = true;
@@ -129,7 +273,6 @@ namespace WSI
             downButton.Enabled = true;
             rightButton.Enabled = true;
             startButton.Enabled = true;
-            stopButton.Enabled = false;
         }
     }
 }

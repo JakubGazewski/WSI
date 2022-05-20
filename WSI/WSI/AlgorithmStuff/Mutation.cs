@@ -23,7 +23,7 @@ namespace WSI.AlgorithmStuff
             Allel randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
             chromosome += randomMove;
 
-            chromosome.Correct();
+            chromosome.sequence = chromosome.Correct();
 
         }
 
@@ -33,7 +33,7 @@ namespace WSI.AlgorithmStuff
             Allel randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
             chromosome[locus] = (char)randomMove;
 
-            chromosome.Correct();
+            chromosome.sequence = chromosome.Correct();
 
         }
 

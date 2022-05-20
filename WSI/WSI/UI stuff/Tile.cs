@@ -30,5 +30,12 @@ namespace WSI.UI_stuff
             int y = boardUpperLeftCornerY + (int)(squareSize * HeightPosition);
             g.DrawImage(Picture, x, y, new Rectangle((int)(squareSize * OriginalWidthPosition), (int)(squareSize * OriginalHeightPosition), (int)squareSize, (int)squareSize), GraphicsUnit.Pixel);
         }
+        public Tile deepCopy()
+        {
+            Tile result = new Tile(Picture, WidthPosition, HeightPosition, BoardSize);
+            result.OriginalHeightPosition = OriginalHeightPosition;
+            result.OriginalWidthPosition = OriginalWidthPosition;
+            return result;
+        }
     }
 }

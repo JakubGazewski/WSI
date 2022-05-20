@@ -10,6 +10,7 @@ namespace WSI.AlgorithmStuff
     {
         Genetic,
         Evolution,
-        Both
+        Both,
+        None
     }
 }
