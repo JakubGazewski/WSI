@@ -140,9 +140,10 @@ namespace WSI
             }
             currentCheckedStep = 0;
             originalSolutionBoard = board.deepCopy();
+            endCheckingSolutionButton.Enabled = true;
             leftStepButton.Enabled = true;
             rightStepButton.Enabled = true;
-            geneticAlgorithmRadioButton.Enabled = true;
+            /*geneticAlgorithmRadioButton.Enabled = true;
             evolutionAlgorithmRadioButton.Enabled = true;
             bothAlgorithmsRadioButton.Enabled = true;
             maxNumberOfIterationsNumericUpDown.Enabled = true;
@@ -152,7 +153,7 @@ namespace WSI
             leftButton.Enabled = true;
             downButton.Enabled = true;
             rightButton.Enabled = true;
-            startButton.Enabled = true;
+            startButton.Enabled = true;*/
             updateSolutionScroller();
         }
         private void updateSolutionScroller()
@@ -238,6 +239,37 @@ namespace WSI
         {
             currentCheckedAlgorithm = AlgorithmChoice.Evolution;
             updateSolutionScroller();
+        }
+
+        private void endCheckingSolutionButton_Click(object sender, EventArgs e)
+        {
+            endCheckingSolutionButton.Enabled = false;
+            endCheckingSolutionButton.Enabled = false;
+            leftStepButton.Enabled = false;
+            rightStepButton.Enabled = false;
+            geneticUsedIterationsLabel.Text = "Steps:";
+            geneticResultSelectButton.Enabled = false;
+            geneticSolution = null;
+            evolutionUsedIterationsLabel.Text = "Steps:";
+            evolutionResultSelectionButton.Enabled = false;
+            evolutionSolution = null;
+            currentCheckedAlgorithm = AlgorithmChoice.None;
+            currentCheckedSolution = null;
+            board = new Board((int)BoardSizeNumericUpDown.Value, boardImage);
+            boardPictureBox.Invalidate();
+            currentCheckedStep = 0;
+
+            geneticAlgorithmRadioButton.Enabled = true;
+            evolutionAlgorithmRadioButton.Enabled = true;
+            bothAlgorithmsRadioButton.Enabled = true;
+            maxNumberOfIterationsNumericUpDown.Enabled = true;
+            BoardSizeNumericUpDown.Enabled = true;
+            shuffleButton.Enabled = true;
+            upButton.Enabled = true;
+            leftButton.Enabled = true;
+            downButton.Enabled = true;
+            rightButton.Enabled = true;
+            startButton.Enabled = true;
         }
     }
 }

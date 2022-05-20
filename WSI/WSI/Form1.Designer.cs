@@ -56,6 +56,7 @@ namespace WSI
             this.bothAlgorithmsRadioButton = new System.Windows.Forms.RadioButton();
             this.evolutionAlgorithmRadioButton = new System.Windows.Forms.RadioButton();
             this.geneticAlgorithmRadioButton = new System.Windows.Forms.RadioButton();
+            this.endCheckingSolutionButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -98,6 +99,7 @@ namespace WSI
             // 
             // optionsPanel
             // 
+            this.optionsPanel.Controls.Add(this.endCheckingSolutionButton);
             this.optionsPanel.Controls.Add(this.evolutionUsedIterationsLabel);
             this.optionsPanel.Controls.Add(this.geneticUsedIterationsLabel);
             this.optionsPanel.Controls.Add(this.stepLabel);
@@ -227,7 +229,7 @@ namespace WSI
             // 
             this.startButton.Location = new System.Drawing.Point(10, 369);
             this.startButton.Name = "startButton";
-            this.startButton.Size = new System.Drawing.Size(75, 23);
+            this.startButton.Size = new System.Drawing.Size(187, 23);
             this.startButton.TabIndex = 11;
             this.startButton.Text = "Start";
             this.startButton.UseVisualStyleBackColor = true;
@@ -393,6 +395,17 @@ namespace WSI
             this.geneticAlgorithmRadioButton.UseCompatibleTextRendering = true;
             this.geneticAlgorithmRadioButton.UseVisualStyleBackColor = true;
             // 
+            // endCheckingSolutionButton
+            // 
+            this.endCheckingSolutionButton.Enabled = false;
+            this.endCheckingSolutionButton.Location = new System.Drawing.Point(10, 427);
+            this.endCheckingSolutionButton.Name = "endCheckingSolutionButton";
+            this.endCheckingSolutionButton.Size = new System.Drawing.Size(187, 23);
+            this.endCheckingSolutionButton.TabIndex = 23;
+            this.endCheckingSolutionButton.Text = "End checking solution";
+            this.endCheckingSolutionButton.UseVisualStyleBackColor = true;
+            this.endCheckingSolutionButton.Click += new System.EventHandler(this.endCheckingSolutionButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -445,6 +458,7 @@ namespace WSI
         private System.Windows.Forms.Button leftStepButton;
         private System.Windows.Forms.Label evolutionUsedIterationsLabel;
         private System.Windows.Forms.Label geneticUsedIterationsLabel;
+        private System.Windows.Forms.Button endCheckingSolutionButton;
     }
 }
 
