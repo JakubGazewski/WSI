@@ -32,6 +32,7 @@ namespace WSI
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.boardPictureBox = new System.Windows.Forms.PictureBox();
             this.optionsPanel = new System.Windows.Forms.Panel();
+            this.endCheckingSolutionButton = new System.Windows.Forms.Button();
             this.evolutionUsedIterationsLabel = new System.Windows.Forms.Label();
             this.geneticUsedIterationsLabel = new System.Windows.Forms.Label();
             this.stepLabel = new System.Windows.Forms.Label();
@@ -56,7 +57,6 @@ namespace WSI
             this.bothAlgorithmsRadioButton = new System.Windows.Forms.RadioButton();
             this.evolutionAlgorithmRadioButton = new System.Windows.Forms.RadioButton();
             this.geneticAlgorithmRadioButton = new System.Windows.Forms.RadioButton();
-            this.endCheckingSolutionButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -72,6 +72,8 @@ namespace WSI
             // 
             this.splitContainer1.Cursor = System.Windows.Forms.Cursors.VSplit;
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splitContainer1.IsSplitterFixed = true;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Name = "splitContainer1";
             // 
@@ -82,8 +84,8 @@ namespace WSI
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.optionsPanel);
-            this.splitContainer1.Size = new System.Drawing.Size(1150, 702);
-            this.splitContainer1.SplitterDistance = 642;
+            this.splitContainer1.Size = new System.Drawing.Size(1142, 702);
+            this.splitContainer1.SplitterDistance = 747;
             this.splitContainer1.TabIndex = 0;
             // 
             // boardPictureBox
@@ -92,7 +94,7 @@ namespace WSI
             this.boardPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.boardPictureBox.Location = new System.Drawing.Point(0, 0);
             this.boardPictureBox.Name = "boardPictureBox";
-            this.boardPictureBox.Size = new System.Drawing.Size(642, 702);
+            this.boardPictureBox.Size = new System.Drawing.Size(747, 702);
             this.boardPictureBox.TabIndex = 0;
             this.boardPictureBox.TabStop = false;
             this.boardPictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.boardPictureBox_Paint);
@@ -124,26 +126,37 @@ namespace WSI
             this.optionsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.optionsPanel.Location = new System.Drawing.Point(0, 0);
             this.optionsPanel.Name = "optionsPanel";
-            this.optionsPanel.Size = new System.Drawing.Size(504, 702);
+            this.optionsPanel.Size = new System.Drawing.Size(391, 702);
             this.optionsPanel.TabIndex = 0;
+            // 
+            // endCheckingSolutionButton
+            // 
+            this.endCheckingSolutionButton.Enabled = false;
+            this.endCheckingSolutionButton.Location = new System.Drawing.Point(10, 427);
+            this.endCheckingSolutionButton.Name = "endCheckingSolutionButton";
+            this.endCheckingSolutionButton.Size = new System.Drawing.Size(187, 23);
+            this.endCheckingSolutionButton.TabIndex = 23;
+            this.endCheckingSolutionButton.Text = "End checking solution";
+            this.endCheckingSolutionButton.UseVisualStyleBackColor = true;
+            this.endCheckingSolutionButton.Click += new System.EventHandler(this.endCheckingSolutionButton_Click);
             // 
             // evolutionUsedIterationsLabel
             // 
             this.evolutionUsedIterationsLabel.AutoSize = true;
-            this.evolutionUsedIterationsLabel.Location = new System.Drawing.Point(122, 515);
+            this.evolutionUsedIterationsLabel.Location = new System.Drawing.Point(162, 515);
             this.evolutionUsedIterationsLabel.Name = "evolutionUsedIterationsLabel";
-            this.evolutionUsedIterationsLabel.Size = new System.Drawing.Size(38, 15);
+            this.evolutionUsedIterationsLabel.Size = new System.Drawing.Size(88, 15);
             this.evolutionUsedIterationsLabel.TabIndex = 22;
-            this.evolutionUsedIterationsLabel.Text = "Steps:";
+            this.evolutionUsedIterationsLabel.Text = "Used iterations:";
             // 
             // geneticUsedIterationsLabel
             // 
             this.geneticUsedIterationsLabel.AutoSize = true;
             this.geneticUsedIterationsLabel.Location = new System.Drawing.Point(10, 515);
             this.geneticUsedIterationsLabel.Name = "geneticUsedIterationsLabel";
-            this.geneticUsedIterationsLabel.Size = new System.Drawing.Size(38, 15);
+            this.geneticUsedIterationsLabel.Size = new System.Drawing.Size(88, 15);
             this.geneticUsedIterationsLabel.TabIndex = 21;
-            this.geneticUsedIterationsLabel.Text = "Steps:";
+            this.geneticUsedIterationsLabel.Text = "Used iterations:";
             // 
             // stepLabel
             // 
@@ -188,7 +201,7 @@ namespace WSI
             // evolutionResultSelectionButton
             // 
             this.evolutionResultSelectionButton.Enabled = false;
-            this.evolutionResultSelectionButton.Location = new System.Drawing.Point(122, 485);
+            this.evolutionResultSelectionButton.Location = new System.Drawing.Point(162, 485);
             this.evolutionResultSelectionButton.Name = "evolutionResultSelectionButton";
             this.evolutionResultSelectionButton.Size = new System.Drawing.Size(75, 23);
             this.evolutionResultSelectionButton.TabIndex = 16;
@@ -395,22 +408,11 @@ namespace WSI
             this.geneticAlgorithmRadioButton.UseCompatibleTextRendering = true;
             this.geneticAlgorithmRadioButton.UseVisualStyleBackColor = true;
             // 
-            // endCheckingSolutionButton
-            // 
-            this.endCheckingSolutionButton.Enabled = false;
-            this.endCheckingSolutionButton.Location = new System.Drawing.Point(10, 427);
-            this.endCheckingSolutionButton.Name = "endCheckingSolutionButton";
-            this.endCheckingSolutionButton.Size = new System.Drawing.Size(187, 23);
-            this.endCheckingSolutionButton.TabIndex = 23;
-            this.endCheckingSolutionButton.Text = "End checking solution";
-            this.endCheckingSolutionButton.UseVisualStyleBackColor = true;
-            this.endCheckingSolutionButton.Click += new System.EventHandler(this.endCheckingSolutionButton_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1150, 702);
+            this.ClientSize = new System.Drawing.Size(1142, 702);
             this.Controls.Add(this.splitContainer1);
             this.Name = "Form1";
             this.Text = "Form1";

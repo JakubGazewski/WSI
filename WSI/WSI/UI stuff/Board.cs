@@ -112,6 +112,15 @@ namespace WSI.UI_stuff
         public Board deepCopy()
         {
             Board result = new Board(size, image);
+            for (int x = 0; x < size; x++)
+            {
+                for (int y = 0; y < size; y++)
+                {
+                    result.tiles[x, y] = tiles[x, y].deepCopy();
+                }
+            }
+            result.emptyTileX = emptyTileX;
+            result.emptyTileY = emptyTileY;
             return result;
         }
     }

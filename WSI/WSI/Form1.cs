@@ -108,28 +108,29 @@ namespace WSI
             int solution1Steps;
             StringBuilder solution2;
             int solution2Steps;
+            originalSolutionBoard = board.deepCopy();
             (solution1, solution1Steps, solution2, solution2Steps) = puzzleSolver.SolvePuzzle(maxIterations, choice).Result;
             switch(choice)
             {
                 case AlgorithmChoice.Genetic:
-                    geneticUsedIterationsLabel.Text = "Steps: " + solution1Steps;
+                    geneticUsedIterationsLabel.Text = "Used iterations: " + solution1Steps;
                     geneticResultSelectButton.Enabled = true;
                     geneticSolution = solution1;
                     currentCheckedAlgorithm = AlgorithmChoice.Genetic;
                     currentCheckedSolution = geneticSolution;
                     break;
                 case AlgorithmChoice.Evolution:
-                    evolutionUsedIterationsLabel.Text = "Steps: " + solution1Steps;
+                    evolutionUsedIterationsLabel.Text = "Used iterations: " + solution1Steps;
                     evolutionResultSelectionButton.Enabled = true;
                     evolutionSolution = solution1;
                     currentCheckedAlgorithm = AlgorithmChoice.Evolution;
                     currentCheckedSolution = evolutionSolution;
                     break;
                 case AlgorithmChoice.Both:
-                    geneticUsedIterationsLabel.Text = "Steps: " + solution1Steps;
+                    geneticUsedIterationsLabel.Text = "Used iterations: " + solution1Steps;
                     geneticResultSelectButton.Enabled = true;
                     geneticSolution = solution1;
-                    evolutionUsedIterationsLabel.Text = "Steps: " + solution2Steps;
+                    evolutionUsedIterationsLabel.Text = "Used iterations: " + solution2Steps;
                     evolutionResultSelectionButton.Enabled = true;
                     evolutionSolution = solution2;
                     currentCheckedAlgorithm = AlgorithmChoice.Genetic;
@@ -139,7 +140,6 @@ namespace WSI
                     break;
             }
             currentCheckedStep = 0;
-            originalSolutionBoard = board.deepCopy();
             endCheckingSolutionButton.Enabled = true;
             leftStepButton.Enabled = true;
             rightStepButton.Enabled = true;
@@ -173,6 +173,7 @@ namespace WSI
             }
             leftStepButton.Enabled = false;
             if (currentCheckedSolution.Length == 0) rightStepButton.Enabled = false;
+            else rightStepButton.Enabled = true;
             boardPictureBox.Invalidate();
         }
         private Moves translateMove(char c)
@@ -214,8 +215,9 @@ namespace WSI
             moveToMake = negateMove(moveToMake);
             board.Move(moveToMake);
             currentCheckedStep--;
-            if (currentCheckedStep == 0) leftButton.Enabled = false;
+            if (currentCheckedStep == 0) leftStepButton.Enabled = false;
             if (currentCheckedStep != currentCheckedSolution.Length) rightStepButton.Enabled = true;
+            stepLabel.Text = "Step " + currentCheckedStep + "/" + currentCheckedSolution.Length;
             boardPictureBox.Invalidate();
         }
         private void rightStepButton_Click(object sender, EventArgs e)
@@ -225,7 +227,8 @@ namespace WSI
             board.Move(moveToMake);
             currentCheckedStep++;
             if (currentCheckedStep == currentCheckedSolution.Length) rightStepButton.Enabled = false;
-            if (currentCheckedStep != 0) leftButton.Enabled = true;
+            if (currentCheckedStep != 0) leftStepButton.Enabled = true;
+            stepLabel.Text = "Step " + currentCheckedStep + "/" + currentCheckedSolution.Length;
             boardPictureBox.Invalidate();
         }
 
@@ -247,10 +250,10 @@ namespace WSI
             endCheckingSolutionButton.Enabled = false;
             leftStepButton.Enabled = false;
             rightStepButton.Enabled = false;
-            geneticUsedIterationsLabel.Text = "Steps:";
+            geneticUsedIterationsLabel.Text = "Used iterations:";
             geneticResultSelectButton.Enabled = false;
             geneticSolution = null;
-            evolutionUsedIterationsLabel.Text = "Steps:";
+            evolutionUsedIterationsLabel.Text = "Used iterations:";
             evolutionResultSelectionButton.Enabled = false;
             evolutionSolution = null;
             currentCheckedAlgorithm = AlgorithmChoice.None;
