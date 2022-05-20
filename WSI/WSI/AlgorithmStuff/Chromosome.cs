@@ -113,11 +113,13 @@ namespace WSI.AlgorithmStuff
             }
         }
 
+
+
         public static int boardWidth { get; private set; } = 3;
         public static int boardHeight { get; private set; } = 3;
         public static int emptyTileStartX { get; private set; } = 0;
         public static int emptyTileStartY { get; private set; } = 0;
-        public bool SetBoardProperties(int _boardWidth, int _boardHeight, int _emptyTileStartX, int _emptyTileStartY)
+        public static bool SetBoardProperties(int _boardWidth, int _boardHeight, int _emptyTileStartX, int _emptyTileStartY)
         {
             if (_boardWidth != _boardHeight) return false;
             if (_emptyTileStartX < 0 || _emptyTileStartX >= _boardWidth || _emptyTileStartY < 0 || _emptyTileStartY >= _boardHeight) return false;
