@@ -108,7 +108,7 @@ namespace WSI
             int solution1Steps;
             StringBuilder solution2;
             int solution2Steps;
-            (solution1, solution1Steps, solution2, solution2Steps) = puzzleSolver.SolvePuzzle(maxIterations, choice);
+            (solution1, solution1Steps, solution2, solution2Steps) = puzzleSolver.SolvePuzzle(maxIterations, choice).Result;
             switch(choice)
             {
                 case AlgorithmChoice.Genetic:
