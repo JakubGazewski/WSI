@@ -19,6 +19,7 @@ namespace WSI.AlgorithmStuff
                 {
                     Mutation.AddGene(chromosome);
                 }
+                chromosome.sequence = chromosome.Correct();
                 chromosomes.Add(chromosome);
             }
 

@@ -10,14 +10,14 @@ namespace WSI.AlgorithmStuff
 {
     public class Solver
     {
-        public readonly CrossOverType crossOverType = CrossOverType.SinglePoint;
-        public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.ElitarismAndBestCrossOver;
+        public readonly CrossOverType crossOverType = CrossOverType.DecideEveryAllel;
+        public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.BestCrossOver;
         public readonly NextPopulationSelection nextPopulationSelection = NextPopulationSelection.Best;
         private int[,] startingBoard;
         private int size;
         private readonly double lenghtMultiplier = 0.01D;
-        private readonly int populationSize = 40;
-        private readonly int chromosomeLength = 10;
+        private readonly int populationSize = 400;
+        private readonly int chromosomeLength = 50;
         private readonly double acceptanceValue = 1D;
         private readonly double elitarismPercent = 0.1D;
         private static readonly Random random = new();
@@ -73,7 +73,7 @@ namespace WSI.AlgorithmStuff
             population.Parents = Init.GetStartngChromosomes(populationSize, chromosomeLength);
             IList<Chromosome> newPopulation = new List<Chromosome>();
             IList<Chromosome> crossOverPopulation = new List<Chromosome>();
-            int eliteSize = (int)(elitarismPercent * populationSize);
+            int eliteSize = 0;
 
             int iterationCount = 1;
             while (iterationCount <= maxIterations)
@@ -85,13 +85,14 @@ namespace WSI.AlgorithmStuff
 
                 population.Parents = population.Sort(population.Parents);
                 population.Children.Clear();
-
+                newPopulation.Clear();
 
                 // cross over
                 switch (chromosomesSelection)
                 {
                     case ChromosomesSelection.Elitarism:
-                        for(int i = 0;i< eliteSize;i++)
+                        eliteSize = (int)(elitarismPercent * populationSize);
+                        for (int i = 0;i< eliteSize;i++)
                         {
                             newPopulation.Add(population.Parents[i]);
                         }
@@ -99,6 +100,7 @@ namespace WSI.AlgorithmStuff
 
                         break;
                     case ChromosomesSelection.ElitarismAndBestCrossOver:
+                        eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0; i < eliteSize; i++)
                         {
                             newPopulation.Add(population.Parents[i]);
@@ -113,6 +115,7 @@ namespace WSI.AlgorithmStuff
                         crossOverPopulation = population.Parents;
                         break;
                     case ChromosomesSelection.ElitarismAndRoulette:
+                        eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0; i < eliteSize; i++)
                         {
                             newPopulation.Add(population.Parents[i]);
@@ -207,7 +210,7 @@ namespace WSI.AlgorithmStuff
                         break;
                 }
 
-                population.Parents = candidates;
+                population.Parents = newPopulation;
 
                 iterationCount++;
             }
@@ -226,7 +229,7 @@ namespace WSI.AlgorithmStuff
             population.Children = new List<Chromosome>();
             population.Parents = Init.GetStartngChromosomes(populationSize, chromosomeLength);
             IList<Chromosome> newPopulation = new List<Chromosome>();
-            int eliteSize = (int)(elitarismPercent * populationSize);
+            int eliteSize = 0;
 
             int iterationCount = 1;
             while (iterationCount <= maxIterations)
@@ -238,10 +241,12 @@ namespace WSI.AlgorithmStuff
 
                 population.Parents = population.Sort(population.Parents);
                 population.Children.Clear();
+                newPopulation.Clear();
 
                 switch (chromosomesSelection)
                 {
                     case ChromosomesSelection.Elitarism:
+                        eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0; i < eliteSize; i++)
                         {
                             newPopulation.Add(population.Parents[i]);
@@ -250,6 +255,7 @@ namespace WSI.AlgorithmStuff
 
                         break;
                     case ChromosomesSelection.ElitarismAndBestCrossOver:
+                        eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0; i < eliteSize; i++)
                         {
                             newPopulation.Add(population.Parents[i]);
@@ -264,6 +270,7 @@ namespace WSI.AlgorithmStuff
                         population.Children = population.Parents;
                         break;
                     case ChromosomesSelection.ElitarismAndRoulette:
+                        eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0; i < eliteSize; i++)
                         {
                             newPopulation.Add(population.Parents[i]);
@@ -367,7 +374,7 @@ namespace WSI.AlgorithmStuff
                     distance += Math.Abs(board[i,j]/size - i) + Math.Abs(board[i,j]%size - j);
                 }
             }
-            distance /= size * size;
+            //distance /= size * size;
             distance += chromosome.Length * lenghtMultiplier;
             return distance;
         }
@@ -383,7 +390,7 @@ namespace WSI.AlgorithmStuff
                     distance += Math.Pow(board[i, j] / size - i, 2) + Math.Pow(board[i, j] % size - j, 2);
                 }
             }
-            distance /= size * size;
+            //distance /= size * size;
             distance += chromosome.Length * lenghtMultiplier;
             return distance;
         }
