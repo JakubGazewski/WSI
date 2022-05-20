@@ -10,12 +10,17 @@ namespace WSI.AlgorithmStuff
     public class Solver
     {
         public readonly CrossOverType crossOverType = CrossOverType.SinglePoint;
+        public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.ElitarismAndBestCrossOver;
         private int[,] startingBoard;
         private int size;
         private readonly double lenghtMultiplier = 0.01D;
-        private readonly int populationSize = 8;
+        private readonly int populationSize = 40;
         private readonly int chromosomeLength = 10;
         private readonly double acceptanceValue = 0D;
+        private readonly double elitarismPercent = 0.1D;
+        private static readonly Random random = new();
+        private readonly int nPointCrossOver = 5;
+        private readonly double mutationChance = ;
 
         public Solver(Board board)
         {
@@ -54,6 +59,9 @@ namespace WSI.AlgorithmStuff
             population.FitnessFunction = FitnessFunctionManhattanDistance;
             population.Children = new List<Chromosome>();
             population.Parents = Init.GetStartngChromosomes(populationSize, chromosomeLength);
+            IList<Chromosome> newPopulation = new List<Chromosome>();
+            IList<Chromosome> crossOverPopulation = new List<Chromosome>();
+            int eliteSize = (int)(elitarismPercent * populationSize / 100D);
 
             int iterationCount = 1;
             while (iterationCount <= maxIterations)
@@ -62,8 +70,75 @@ namespace WSI.AlgorithmStuff
                 if (isFinished != null)
                     return (isFinished, iterationCount);
 
-                // cross over
+                population.Parents = population.Sort(population.Parents);
 
+
+                // cross over
+                switch (chromosomesSelection)
+                {
+                    case ChromosomesSelection.Elitarism:
+                        for(int i = 0;i< eliteSize;i++)
+                        {
+                            newPopulation.Add(population.Parents[i]);
+                        }
+                        crossOverPopulation = population.Parents;
+
+                        break;
+                    case ChromosomesSelection.ElitarismAndBestCrossOver:
+                        for (int i = 0; i < eliteSize; i++)
+                        {
+                            newPopulation.Add(population.Parents[i]);
+                        }
+                        crossOverPopulation = population.SelectBests(populationSize / 2);
+
+                        break;
+                    case ChromosomesSelection.BestCrossOver:
+                        crossOverPopulation = population.SelectBests(populationSize / 2);
+                        break;
+                    case ChromosomesSelection.AllCrossOver:
+                        crossOverPopulation = population.Parents;
+                        break;
+                    case ChromosomesSelection.ElitarismAndRoulette:
+                        for (int i = 0; i < eliteSize; i++)
+                        {
+                            newPopulation.Add(population.Parents[i]);
+                        }
+                        crossOverPopulation = population.SelectByRoulette(false, populationSize / 2);
+                        break;
+                    case ChromosomesSelection.Roulette:
+                        crossOverPopulation = population.SelectByRoulette(false, populationSize / 2);
+                        break;
+                }
+
+                while(crossOverPopulation.Count > 0)
+                {
+                    int rand = random.Next(crossOverPopulation.Count);
+                    Chromosome a = crossOverPopulation[rand];
+                    crossOverPopulation.RemoveAt(rand);
+                    rand = random.Next(crossOverPopulation.Count);
+                    Chromosome b = crossOverPopulation[rand];
+                    crossOverPopulation.RemoveAt(rand);
+
+                    Chromosome childA = null, childB = null;
+
+                    switch(crossOverType)
+                    {
+                        case CrossOverType.SinglePoint:
+                            (childA, childB) = population.SinglePointCrossOver(a, b);
+                            break;
+                        case CrossOverType.NPoints:
+                            (childA, childB) = population.NPointCrossOver(a, b, nPointCrossOver);
+                            break;
+                        case CrossOverType.DecideEveryAllel:
+                            (childA, childB) = population.DecideEveryAllelCrossOver(a, b);
+                            break;
+                    }
+                    population.Children.Add(childA);
+                    population.Children.Add(childB);
+
+                }
+
+                // Mutation.MutateChance = do poprawienia
 
 
 
@@ -94,7 +169,7 @@ namespace WSI.AlgorithmStuff
             return (null, iterationCount);
         }
 
-        private StringBuilder IsFinished(List<Chromosome> chromosomes)
+        private StringBuilder IsFinished(IList<Chromosome> chromosomes)
         {
             foreach(Chromosome chromosome in chromosomes)
             {
