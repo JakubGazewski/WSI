@@ -31,17 +31,17 @@ namespace WSI.AlgorithmStuff
                 FitenssSum += FitnessFunction(pom[i]);
             }
             
-            roulettePercents[0] = (FitnessFunction(pom[0]) / FitenssSum) * 100;
+            roulettePercents[0] = (FitnessFunction(pom[0]) / FitenssSum);
             for (int i = 1; i < pom.Count; i++)
             {
-                roulettePercents[i] = (FitnessFunction(pom[i]) / FitenssSum) * 100 + roulettePercents[i - 1];
+                roulettePercents[i] = (FitnessFunction(pom[i]) / FitenssSum) + roulettePercents[i - 1];
             }
 
             List<Chromosome> newPopulation = new();
 
             for (int i = 0; i < count; i++)
             {
-                double makeDraw = random.NextDouble()*100;
+                double makeDraw = random.NextDouble();
                 for (int j = 0; j < pom.Count; j++)
                 {
                     if (roulettePercents[j] > makeDraw)
@@ -57,8 +57,6 @@ namespace WSI.AlgorithmStuff
 
         public IList<Chromosome> SelectBests(int count) //wybieramy z największą wartością funkcji przystosowania
         {
-            //int count = Parents.Count;
-
             List<Chromosome> p = (List<Chromosome>)Parents;
             p.AddRange(Children);
             p.Sort(CompareByFitnessFunction);

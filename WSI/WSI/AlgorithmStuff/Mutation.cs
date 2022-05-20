@@ -12,10 +12,10 @@ namespace WSI.AlgorithmStuff
         private static readonly Array possibleMoves = Enum.GetValues(typeof(Allel));
         private static readonly Random random = new();
 
-        //wartości mutateChance i addVsMutateChance od 0 do 100
-        public static int MutateChance { set; get; } = 50;
-        public static int AddVsMutateChance { set; get; } = 20;
-        public static int AllVsOneChance { set; get; } = 20;
+        //wartości mutateChance i addVsMutateChance od 0 do 1
+        public static double MutateChance { set; get; } = 0.5;
+        public static double AddVsMutateChance { set; get; } = 0.2;
+        public static double AllVsOneChance { set; get; } = 0.2;
         public static bool AllGenes { set; get; } = false;
 
         public static void AddGene(Chromosome chromosome)
@@ -41,7 +41,7 @@ namespace WSI.AlgorithmStuff
         {
             for(int i=0;i<chromosome.Length;i++)
             {
-                int mutationDraw = random.Next(100);
+                double mutationDraw = random.NextDouble();
                 if (mutationDraw < MutateChance)
                     MutateGene(chromosome, i);
             }
@@ -52,10 +52,10 @@ namespace WSI.AlgorithmStuff
             int locus = AllGenes ? 0 : random.Next(chromosome.Length);
             do
             {
-                int mutationDraw = random.Next(100);
+                double mutationDraw = random.NextDouble();
                 if (mutationDraw < MutateChance)
                 {
-                    int addDraw = AllGenes ? 101 : random.Next(100);
+                    double addDraw = AllGenes ? 2 : random.NextDouble();
 
                     if (addDraw < AddVsMutateChance)
                         AddGene(chromosome);
@@ -68,9 +68,10 @@ namespace WSI.AlgorithmStuff
         public static void MutateV2(Chromosome chromosome)
         {
 
-            int mutationDraw = random.Next(100);
-            int allVsOnedraw = random.Next(100);
-            int addDraw = random.Next(100);
+            double mutationDraw = random.NextDouble();
+            double allVsOnedraw = random.NextDouble();
+            double addDraw = random.NextDouble();
+            
             if(mutationDraw<MutateChance)
             {
                 if(allVsOnedraw < AllVsOneChance)
