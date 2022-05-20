@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -77,6 +78,7 @@ namespace WSI.AlgorithmStuff
             int iterationCount = 1;
             while (iterationCount <= maxIterations)
             {
+                Debug.WriteLine($"Genetic iteration: {iterationCount}");
                 StringBuilder isFinished = IsFinished(population.Parents);
                 if (isFinished != null)
                     return (isFinished, iterationCount);
@@ -227,6 +229,7 @@ namespace WSI.AlgorithmStuff
             int iterationCount = 1;
             while (iterationCount <= maxIterations)
             {
+                Debug.WriteLine($"Evolutionary iteration: {iterationCount}");
                 StringBuilder isFinished = IsFinished(population.Parents);
                 if (isFinished != null)
                     return (isFinished, iterationCount);
