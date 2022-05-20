@@ -156,11 +156,11 @@ namespace WSI.AlgorithmStuff
             if(cross)
             {
                 a.sequence.Append(parentB.sequence, points.Last(), parentB.Length - points.Last());
-                b.sequence.Append(parentA.sequence, points.Last(), parentB.Length - points.Last());
+                b.sequence.Append(parentA.sequence, points.Last(), parentA.Length - points.Last());
             }
             else
             {
-                a.sequence.Append(parentA.sequence, points.Last(), parentB.Length - points.Last());
+                a.sequence.Append(parentA.sequence, points.Last(), parentA.Length - points.Last());
                 b.sequence.Append(parentB.sequence, points.Last(), parentB.Length - points.Last());
             }
 

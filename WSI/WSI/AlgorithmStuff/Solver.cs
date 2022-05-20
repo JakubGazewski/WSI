@@ -10,22 +10,24 @@ namespace WSI.AlgorithmStuff
 {
     public class Solver
     {
-        public readonly CrossOverType crossOverType = CrossOverType.DecideEveryAllel;
-        public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.BestCrossOver;
+        public readonly CrossOverType crossOverType = CrossOverType.SinglePoint;
+        public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.ElitarismAndBestCrossOver;
         public readonly NextPopulationSelection nextPopulationSelection = NextPopulationSelection.Best;
         private int[,] startingBoard;
         private int size;
         private readonly double lenghtMultiplier = 0.01D;
         private readonly int populationSize = 400;
         private readonly int chromosomeLength = 50;
-        private readonly double acceptanceValue = 1D;
-        private readonly double elitarismPercent = 0.1D;
+        private readonly double acceptanceValue = 0.31D;
+        private readonly double elitarismPercent = 0.2D;
         private static readonly Random random = new();
         private readonly int nPointCrossOver = 5;
-        private readonly double geneticMutationChance = 0.05D;
+        private readonly double geneticMutationChance = 0.001D;
         private readonly double evolutionaryMutationChance = 0.5D;
         private readonly double geneticAdditionChance = 0.5D;
         private readonly double evolutionaryAdditionChance = 0.5D;
+        private int blankX = -1;
+        private int blankY = -1;
 
         public Solver(Board board)
         {
@@ -37,10 +39,15 @@ namespace WSI.AlgorithmStuff
                 for(int j = 0; j < size; j++)
                 {
                     startingBoard[i, j] = board.tiles[i, j].OriginalHeightPosition*board.size + board.tiles[i, j].OriginalWidthPosition;
+                    if(startingBoard[i, j] == size*size - 1)
+                    {
+                        blankX = i;
+                        blankY = j;
+                    }
                 }
             }
 
-            Chromosome.SetBoardProperties(size, size, size - 1, size - 1);
+            Chromosome.SetBoardProperties(size, size, blankX, blankY);
         }
 
         public async Task<(StringBuilder, int, StringBuilder, int)> SolvePuzzle(int maxIterations, AlgorithmChoice choice) // returns solution and number of iterations (optionaly solution and number of iterations for second algorith, default evolutionary)
@@ -195,6 +202,7 @@ namespace WSI.AlgorithmStuff
                         }
                         break;
                     case NextPopulationSelection.Roulette:
+                        population.Children = candidates;
                         candidates = population.SelectByRoulette(true, populationSize - eliteSize);
                         for(int i = 0;i< candidates.Count; i++)
                         {
@@ -202,6 +210,7 @@ namespace WSI.AlgorithmStuff
                         }
                         break;
                     case NextPopulationSelection.Best:
+                        population.Children = candidates;
                         candidates = population.SelectBests(populationSize - eliteSize);
                         for (int i = 0; i < candidates.Count; i++)
                         {
@@ -210,7 +219,7 @@ namespace WSI.AlgorithmStuff
                         break;
                 }
 
-                population.Parents = newPopulation;
+                population.Parents = new List<Chromosome>(newPopulation);
 
                 iterationCount++;
             }
@@ -352,15 +361,39 @@ namespace WSI.AlgorithmStuff
         {
             foreach(Chromosome chromosome in chromosomes)
             {
-                if(FitnessFunctionManhattanDistance(chromosome) <= acceptanceValue)
+                int [,] board = startingBoard.Clone() as int[,];
+                int tempBlankX = blankX;
+                int tempBlankY = blankY;
+                double distance = 0;
+                for (int i = 0; i < chromosome.Length; i++)
                 {
-                    //StringBuilder result = new StringBuilder();
-                    // corrected chromosome and return result
-                    return chromosome.sequence;
+                    (distance, board, tempBlankX, tempBlankY) = FitnessFunctionManhattanDistance(chromosome, board, tempBlankX, tempBlankY, i);
+                    if (distance <= acceptanceValue)
+                    {
+                        //StringBuilder result = new StringBuilder();
+                        // corrected chromosome and return result
+                        return new StringBuilder(chromosome.sequence.ToString().Substring(0, i + 1));
+                    }
                 }
             }
 
             return null;
+        }
+
+        private (double, int[,], int, int) FitnessFunctionManhattanDistance(Chromosome chromosome, int[,] lastBoard, int tempBlankX, int tempBlankY, int moveIndex)
+        {
+            (lastBoard, tempBlankX, tempBlankY) = ApplyMove(chromosome, lastBoard, tempBlankX, tempBlankY, moveIndex);
+            double distance = 0;
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    distance += Math.Abs(lastBoard[i, j] / size - j) + Math.Abs(lastBoard[i, j] % size - i);
+                }
+            }
+            //distance /= size * size;
+            distance += (moveIndex + 1) * lenghtMultiplier;
+            return (distance, lastBoard, tempBlankX, tempBlankY);
         }
 
         private double FitnessFunctionManhattanDistance(Chromosome chromosome)
@@ -371,7 +404,7 @@ namespace WSI.AlgorithmStuff
             {
                 for(int j = 0; j < size; j++)
                 {
-                    distance += Math.Abs(board[i,j]/size - i) + Math.Abs(board[i,j]%size - j);
+                    distance += Math.Abs(board[i,j]/size - j) + Math.Abs(board[i,j]%size - i);
                 }
             }
             //distance /= size * size;
@@ -387,7 +420,7 @@ namespace WSI.AlgorithmStuff
             {
                 for (int j = 0; j < size; j++)
                 {
-                    distance += Math.Pow(board[i, j] / size - i, 2) + Math.Pow(board[i, j] % size - j, 2);
+                    distance += Math.Pow(board[i, j] / size - j, 2) + Math.Pow(board[i, j] % size - i, 2);
                 }
             }
             //distance /= size * size;
@@ -395,36 +428,64 @@ namespace WSI.AlgorithmStuff
             return distance;
         }
 
+        private (int[,], int, int) ApplyMove(Chromosome chromosome, int[,] board, int tempBlankX, int tempBlankY, int index)
+        {
+            switch((Allel)chromosome.sequence[index])
+            {
+                case Allel.D:
+                    board[tempBlankX, tempBlankY] = board[tempBlankX, tempBlankY + 1];
+                    board[tempBlankX, tempBlankY + 1] = size*size - 1;
+                    tempBlankY++;
+                    break;
+                case Allel.U:
+                    board[tempBlankX, tempBlankY] = board[tempBlankX, tempBlankY - 1];
+                    board[tempBlankX, tempBlankY - 1] = size * size - 1;
+                    tempBlankY--;
+                    break;
+                case Allel.R:
+                    board[tempBlankX, tempBlankY] = board[tempBlankX + 1, tempBlankY];
+                    board[tempBlankX + 1, tempBlankY] = size * size - 1;
+                    tempBlankX++;
+                    break;
+                case Allel.L:
+                    board[tempBlankX, tempBlankY] = board[tempBlankX - 1, tempBlankY];
+                    board[tempBlankX - 1, tempBlankY] = size * size - 1;
+                    tempBlankX--;
+                    break;
+            }
+            return (board, tempBlankX, tempBlankY);
+        }
+
         private int[,] ApplyMoves(Chromosome chromosome)
         {
             int[,] board = startingBoard.Clone() as int[,];
-            int blankX = size - 1;
-            int blankY = size - 1;
             int blank = size * size - 1;
+            int tempBlankX = blankX;
+            int tempBlankY = blankY;
 
             foreach (Allel move in chromosome.sequence.ToString())
             {
                 switch (move)
                 {
                     case Allel.D:
-                        board[blankX, blankY] = board[blankX, blankY + 1];
-                        board[blankX, blankY + 1] = blank;
-                        blankY++;
+                        board[tempBlankX, tempBlankY] = board[tempBlankX, tempBlankY + 1];
+                        board[tempBlankX, tempBlankY + 1] = blank;
+                        tempBlankY++;
                         break;
                     case Allel.U:
-                        board[blankX, blankY] = board[blankX, blankY - 1];
-                        board[blankX, blankY - 1] = blank;
-                        blankY--;
+                        board[tempBlankX, tempBlankY] = board[tempBlankX, tempBlankY - 1];
+                        board[tempBlankX, tempBlankY - 1] = blank;
+                        tempBlankY--;
                         break;
                     case Allel.R:
-                        board[blankX, blankY] = board[blankX + 1, blankY];
-                        board[blankX + 1, blankY] = blank;
-                        blankX++;
+                        board[tempBlankX, tempBlankY] = board[tempBlankX + 1, tempBlankY];
+                        board[tempBlankX + 1, tempBlankY] = blank;
+                        tempBlankX++;
                         break;
                     case Allel.L:
-                        board[blankX, blankY] = board[blankX - 1, blankY];
-                        board[blankX - 1, blankY] = blank;
-                        blankX--;
+                        board[tempBlankX, tempBlankY] = board[tempBlankX - 1, tempBlankY];
+                        board[tempBlankX - 1, tempBlankY] = blank;
+                        tempBlankX--;
                         break;
                 }
             }
