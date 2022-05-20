@@ -72,7 +72,7 @@ namespace WSI.AlgorithmStuff
             double allVsOnedraw = random.NextDouble();
             double addDraw = random.NextDouble();
             
-            if(mutationDraw<MutateChance)
+            if(mutationDraw < MutateChance)
             {
                 if(allVsOnedraw < AllVsOneChance)
                 {

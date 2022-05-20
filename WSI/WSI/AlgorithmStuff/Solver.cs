@@ -20,7 +20,7 @@ namespace WSI.AlgorithmStuff
         private readonly double elitarismPercent = 0.1D;
         private static readonly Random random = new();
         private readonly int nPointCrossOver = 5;
-        private readonly double mutationChance = ;
+        private readonly double mutationChance = 0.2;
 
         public Solver(Board board)
         {
