@@ -25,16 +25,30 @@ namespace WSI.AlgorithmStuff
 
             double FitenssSum = 0;
             double[] roulettePercents = new double[pom.Count];
-            
+
             for (int i = 0; i < pom.Count; i++)
             {
                 FitenssSum += FitnessFunction(pom[i]);
             }
-            
-            roulettePercents[0] = (FitnessFunction(pom[0]) / FitenssSum);
+
+            for (int i = 0; i < pom.Count; i++)
+            {
+                roulettePercents[i] = FitenssSum - FitnessFunction(pom[i]);
+            }
+
+            FitenssSum = 0;
+            for (int i = 0; i < pom.Count; i++)
+            {
+                FitenssSum += roulettePercents[i];
+            }
+            for (int i = 0; i < pom.Count; i++)
+            {
+                roulettePercents[i] = roulettePercents[i] / FitenssSum;
+            }
+
             for (int i = 1; i < pom.Count; i++)
             {
-                roulettePercents[i] = (FitnessFunction(pom[i]) / FitenssSum) + roulettePercents[i - 1];
+                roulettePercents[i] = roulettePercents[i] + roulettePercents[i - 1];
             }
 
             List<Chromosome> newPopulation = new();
@@ -80,9 +94,9 @@ namespace WSI.AlgorithmStuff
         public int CompareByFitnessFunction(Chromosome chr1, Chromosome chr2)
         {
             if (FitnessFunction(chr1) > FitnessFunction(chr2))
-                return -1;
-            else if (FitnessFunction(chr1) < FitnessFunction(chr2))
                 return 1;
+            else if (FitnessFunction(chr1) < FitnessFunction(chr2))
+                return -1;
             else
                 return 0;
         }
