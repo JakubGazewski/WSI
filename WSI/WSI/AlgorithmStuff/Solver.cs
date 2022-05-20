@@ -210,7 +210,9 @@ namespace WSI.AlgorithmStuff
                 iterationCount++;
             }
 
-            return (null, iterationCount);
+            population.Parents = population.Sort(population.Parents);
+
+            return (population.Parents[0].sequence, iterationCount);
         }
 
         public async Task<(StringBuilder, int)> EvolutionaryAlgorithm(int maxIterations)
@@ -327,7 +329,9 @@ namespace WSI.AlgorithmStuff
                 iterationCount++;
             }
 
-            return (null, iterationCount);
+            population.Parents = population.Sort(population.Parents);
+
+            return (population.Parents[0].sequence, iterationCount);
         }
 
         private StringBuilder IsFinished(IList<Chromosome> chromosomes)
