@@ -13,7 +13,7 @@ namespace WSI.AlgorithmStuff
         private static readonly Array possibleMoves = Enum.GetValues(typeof(Allel));
         private static readonly Random random = new();
 
-        public StringBuilder sequence { get; }
+        public StringBuilder sequence { get; set; }
         public char this[int ind]
         {
             get => sequence[ind];
@@ -62,16 +62,17 @@ namespace WSI.AlgorithmStuff
         }
 
         // przechodzi jeden raz po całym chromosomie, losując jeszcze raz allel tam, gdzie biale pole wychodzi poza planszę
-        public void Correct()
+        public StringBuilder Correct()
         {
-            if (!repeating) return;
-            
+            if (!repeating) return new StringBuilder(sequence.ToString());
+
+            StringBuilder correctedSequence = new StringBuilder(sequence.ToString());
             int emptyTileX = emptyTileStartX, emptyTileY = emptyTileStartY;
             for (int i = 0; i < sequence.Length; i++)
             {
                 int tempEmptyTileX = emptyTileX, tempEmptyTileY = emptyTileY;
 
-                switch (sequence[i])
+                switch (correctedSequence[i])
                 {
                     case 'U':
                         emptyTileY--;
@@ -90,11 +91,11 @@ namespace WSI.AlgorithmStuff
                 while (emptyTileX < 0 || emptyTileX >= boardWidth || emptyTileY < 0 || emptyTileY >= boardHeight)
                 {
                     Allel randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
-                    sequence[i] = (char)randomMove;
+                    correctedSequence[i] = (char)randomMove;
 
                     emptyTileX = tempEmptyTileX; emptyTileY = tempEmptyTileY;
 
-                    switch (sequence[i])
+                    switch (correctedSequence[i])
                     {
                         case 'U':
                             emptyTileY--;
@@ -111,7 +112,10 @@ namespace WSI.AlgorithmStuff
                     }
                 }
             }
+            return correctedSequence;
         }
+
+
 
 
 

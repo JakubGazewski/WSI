@@ -21,7 +21,10 @@ namespace WSI.AlgorithmStuff
         private readonly double elitarismPercent = 0.1D;
         private static readonly Random random = new();
         private readonly int nPointCrossOver = 5;
-        //private readonly double mutationChance = ;
+        private readonly double geneticMutationChance = 0.05D;
+        private readonly double evolutionaryMutationChance = 0.5D;
+        private readonly double geneticAdditionChance = 0.5D;
+        private readonly double evolutionaryAdditionChance = 0.5D;
 
         public Solver(Board board)
         {
@@ -39,16 +42,23 @@ namespace WSI.AlgorithmStuff
             Chromosome.SetBoardProperties(size, size, size - 1, size - 1);
         }
 
-        public (StringBuilder, int, StringBuilder, int) SolvePuzzle(int maxIterations, AlgorithmChoice choice) // returns solution and number of iterations (optionaly solution and number of iterations for second algorith, default evolutionary)
+        public async Task<(StringBuilder, int, StringBuilder, int)> SolvePuzzle(int maxIterations, AlgorithmChoice choice) // returns solution and number of iterations (optionaly solution and number of iterations for second algorith, default evolutionary)
         {
             switch(choice)
             {
                 case AlgorithmChoice.Genetic:
-                    break;
+                    var genetic = GeneticAlgorithm(maxIterations);
+                    var resultGenetic = await Task.WhenAll(genetic);
+                    return (resultGenetic[0].Item1, resultGenetic[0].Item2, null, 0);
                 case AlgorithmChoice.Evolution:
-                    break;
+                    var evolutionary = EvolutionaryAlgorithm(maxIterations);
+                    var resultEvolutionary = await Task.WhenAll(evolutionary);
+                    return (resultEvolutionary[0].Item1, resultEvolutionary[0].Item2, null, 0);
                 case AlgorithmChoice.Both:
-                    break;
+                    var geneticBoth = GeneticAlgorithm(maxIterations);
+                    var evolutionaryBoth = EvolutionaryAlgorithm(maxIterations);
+                    var result = await Task.WhenAll(geneticBoth, evolutionaryBoth);
+                    return (result[0].Item1, result[0].Item2, result[1].Item1, result[1].Item2);
             }
 
             return (null, 0, null, 0);
@@ -62,7 +72,7 @@ namespace WSI.AlgorithmStuff
             population.Parents = Init.GetStartngChromosomes(populationSize, chromosomeLength);
             IList<Chromosome> newPopulation = new List<Chromosome>();
             IList<Chromosome> crossOverPopulation = new List<Chromosome>();
-            int eliteSize = (int)(elitarismPercent * populationSize / 100D);
+            int eliteSize = (int)(elitarismPercent * populationSize);
 
             int iterationCount = 1;
             while (iterationCount <= maxIterations)
@@ -72,6 +82,7 @@ namespace WSI.AlgorithmStuff
                     return (isFinished, iterationCount);
 
                 population.Parents = population.Sort(population.Parents);
+                population.Children.Clear();
 
 
                 // cross over
@@ -111,6 +122,8 @@ namespace WSI.AlgorithmStuff
                         break;
                 }
 
+                population.Parents = new List<Chromosome>(crossOverPopulation);
+
                 while(crossOverPopulation.Count > 0)
                 {
                     int rand = random.Next(crossOverPopulation.Count);
@@ -134,13 +147,19 @@ namespace WSI.AlgorithmStuff
                             (childA, childB) = population.DecideEveryAllelCrossOver(a, b);
                             break;
                     }
+                    childA.sequence = childA.Correct();
+                    childB.sequence = childB.Correct();
                     population.Children.Add(childA);
                     population.Children.Add(childB);
-
                 }
 
-                //Mutation.MutateChance = 0.001D;
+                Mutation.MutateChance = geneticMutationChance;
+                Mutation.AddVsMutateChance = geneticAdditionChance;
 
+                for(int i = 0; i < population.Children.Count; i++)
+                {
+                    Mutation.Mutate(population.Children[i]);
+                }
 
                 IList<Chromosome> candidates = new List<Chromosome>();
                 for(int i = 0;i< population.Children.Count; i++)
@@ -161,14 +180,32 @@ namespace WSI.AlgorithmStuff
                         }
                         break;
                     case NextPopulationSelection.RouletteChildren:
+                        population.Children = candidates;
+                        if (population.Children.Count < populationSize)
+                            throw new ArgumentException();
+                        candidates = population.SelectByRoulette(false, populationSize - eliteSize);
+                        for (int i = 0; i < candidates.Count; i++)
+                        {
+                            newPopulation.Add(candidates[i]);
+                        }
                         break;
                     case NextPopulationSelection.Roulette:
+                        candidates = population.SelectByRoulette(true, populationSize - eliteSize);
+                        for(int i = 0;i< candidates.Count; i++)
+                        {
+                            newPopulation.Add(candidates[i]);
+                        }
                         break;
                     case NextPopulationSelection.Best:
+                        candidates = population.SelectBests(populationSize - eliteSize);
+                        for (int i = 0; i < candidates.Count; i++)
+                        {
+                            newPopulation.Add(candidates[i]);
+                        }
                         break;
                 }
 
-
+                population.Parents = candidates;
 
                 iterationCount++;
             }
@@ -182,6 +219,8 @@ namespace WSI.AlgorithmStuff
             population.FitnessFunction = FitnessFunctionManhattanDistance;
             population.Children = new List<Chromosome>();
             population.Parents = Init.GetStartngChromosomes(populationSize, chromosomeLength);
+            IList<Chromosome> newPopulation = new List<Chromosome>();
+            int eliteSize = (int)(elitarismPercent * populationSize);
 
             int iterationCount = 1;
             while (iterationCount <= maxIterations)
@@ -190,6 +229,100 @@ namespace WSI.AlgorithmStuff
                 if (isFinished != null)
                     return (isFinished, iterationCount);
 
+                population.Parents = population.Sort(population.Parents);
+                population.Children.Clear();
+
+                switch (chromosomesSelection)
+                {
+                    case ChromosomesSelection.Elitarism:
+                        for (int i = 0; i < eliteSize; i++)
+                        {
+                            newPopulation.Add(population.Parents[i]);
+                        }
+                        population.Children = population.Parents;
+
+                        break;
+                    case ChromosomesSelection.ElitarismAndBestCrossOver:
+                        for (int i = 0; i < eliteSize; i++)
+                        {
+                            newPopulation.Add(population.Parents[i]);
+                        }
+                        population.Children = population.SelectBests(populationSize);
+
+                        break;
+                    case ChromosomesSelection.BestCrossOver:
+                        population.Children = population.SelectBests(populationSize);
+                        break;
+                    case ChromosomesSelection.AllCrossOver:
+                        population.Children = population.Parents;
+                        break;
+                    case ChromosomesSelection.ElitarismAndRoulette:
+                        for (int i = 0; i < eliteSize; i++)
+                        {
+                            newPopulation.Add(population.Parents[i]);
+                        }
+                        population.Children = population.SelectByRoulette(false, populationSize);
+                        break;
+                    case ChromosomesSelection.Roulette:
+                        population.Children = population.SelectByRoulette(false, populationSize);
+                        break;
+                }
+
+                population.Parents.Clear();
+
+                Mutation.MutateChance = evolutionaryMutationChance;
+                Mutation.AddVsMutateChance = evolutionaryAdditionChance;
+
+                for (int i = 0; i < population.Children.Count; i++)
+                {
+                    Mutation.Mutate(population.Children[i]);
+                }
+
+                IList<Chromosome> candidates = new List<Chromosome>();
+                for (int i = 0; i < population.Children.Count; i++)
+                {
+                    candidates.Add(population.Children[i]);
+                }
+
+                switch (nextPopulationSelection)
+                {
+                    case NextPopulationSelection.Children:
+                        population.Children = candidates;
+                        if (population.Children.Count < populationSize)
+                            throw new ArgumentException();
+                        candidates = population.SelectChildren(populationSize - eliteSize);
+                        for (int i = 0; i < candidates.Count; i++)
+                        {
+                            newPopulation.Add(candidates[i]);
+                        }
+                        break;
+                    case NextPopulationSelection.RouletteChildren:
+                        population.Children = candidates;
+                        if (population.Children.Count < populationSize)
+                            throw new ArgumentException();
+                        candidates = population.SelectByRoulette(false, populationSize - eliteSize);
+                        for (int i = 0; i < candidates.Count; i++)
+                        {
+                            newPopulation.Add(candidates[i]);
+                        }
+                        break;
+                    case NextPopulationSelection.Roulette:
+                        candidates = population.SelectByRoulette(true, populationSize - eliteSize);
+                        for (int i = 0; i < candidates.Count; i++)
+                        {
+                            newPopulation.Add(candidates[i]);
+                        }
+                        break;
+                    case NextPopulationSelection.Best:
+                        candidates = population.SelectBests(populationSize - eliteSize);
+                        for (int i = 0; i < candidates.Count; i++)
+                        {
+                            newPopulation.Add(candidates[i]);
+                        }
+                        break;
+                }
+
+                population.Parents = newPopulation;
 
                 iterationCount++;
             }
@@ -203,8 +336,9 @@ namespace WSI.AlgorithmStuff
             {
                 if(FitnessFunctionManhattanDistance(chromosome) <= acceptanceValue)
                 {
-                    StringBuilder result = new StringBuilder();
+                    //StringBuilder result = new StringBuilder();
                     // corrected chromosome and return result
+                    return chromosome.sequence;
                 }
             }
 
