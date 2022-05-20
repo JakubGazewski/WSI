@@ -9,6 +9,7 @@ namespace WSI.AlgorithmStuff
     public enum NextPopulationSelection
     {
         Roulette,
+        RouletteChildren,
         Best,
         Children
     }

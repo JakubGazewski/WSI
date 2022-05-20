@@ -11,16 +11,17 @@ namespace WSI.AlgorithmStuff
     {
         public readonly CrossOverType crossOverType = CrossOverType.SinglePoint;
         public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.ElitarismAndBestCrossOver;
+        public readonly NextPopulationSelection nextPopulationSelection = NextPopulationSelection.Best;
         private int[,] startingBoard;
         private int size;
         private readonly double lenghtMultiplier = 0.01D;
         private readonly int populationSize = 40;
         private readonly int chromosomeLength = 10;
-        private readonly double acceptanceValue = 0D;
+        private readonly double acceptanceValue = 1D;
         private readonly double elitarismPercent = 0.1D;
         private static readonly Random random = new();
         private readonly int nPointCrossOver = 5;
-        private readonly double mutationChance = ;
+        //private readonly double mutationChance = ;
 
         public Solver(Board board)
         {
@@ -138,7 +139,34 @@ namespace WSI.AlgorithmStuff
 
                 }
 
-                // Mutation.MutateChance = do poprawienia
+                //Mutation.MutateChance = 0.001D;
+
+
+                IList<Chromosome> candidates = new List<Chromosome>();
+                for(int i = 0;i< population.Children.Count; i++)
+                {
+                    candidates.Add(population.Children[i]);
+                }
+
+                switch(nextPopulationSelection)
+                {
+                    case NextPopulationSelection.Children:
+                        population.Children = candidates;
+                        if (population.Children.Count < populationSize)
+                            throw new ArgumentException();
+                        candidates = population.SelectChildren(populationSize - eliteSize);
+                        for(int i = 0; i< candidates.Count; i++)
+                        {
+                            newPopulation.Add(candidates[i]);
+                        }
+                        break;
+                    case NextPopulationSelection.RouletteChildren:
+                        break;
+                    case NextPopulationSelection.Roulette:
+                        break;
+                    case NextPopulationSelection.Best:
+                        break;
+                }
 
 
 

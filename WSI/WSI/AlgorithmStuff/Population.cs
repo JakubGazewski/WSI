@@ -74,7 +74,7 @@ namespace WSI.AlgorithmStuff
 
         public IList<Chromosome> Sort(IList<Chromosome> list)
         {
-            List<Chromosome> pom = (List<Chromosome>)Children;
+            List<Chromosome> pom = (List<Chromosome>)list;
             pom.Sort(CompareByFitnessFunction);
             return pom;
         }
