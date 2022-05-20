@@ -31,7 +31,7 @@ namespace WSI.AlgorithmStuff
         {
 
             Allel randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
-            chromosome[index] = (char)randomMove;
+            chromosome[locus] = (char)randomMove;
 
             chromosome.Correct();
 
