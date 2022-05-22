@@ -91,54 +91,108 @@ namespace WSI.AlgorithmStuff
                 while (emptyTileX < 0 || emptyTileX >= boardWidth || emptyTileY < 0 || emptyTileY >= boardHeight)
                 {
                     List<Allel> correctPossibleMoves = possibleMoves.OfType<Allel>().ToList();
-                    
-                    if( (emptyTileX - 1 < 0 && emptyTileY < 0) || (emptyTileX < 0 && emptyTileY  - 1 < 0)) //lewy górny róg
+                    //if (i > 0) //jest poprzednik
+                    //{
+                    if ((emptyTileX - 1 < 0 && emptyTileY < 0) || (emptyTileX < 0 && emptyTileY - 1 < 0)) //lewy górny róg
                     {
-                        correctedSequence[i] = correctedSequence[i] == 'R' ? 'D' : 'R';
+                        if (i > 0)
+                            correctedSequence[i] = correctedSequence[i - 1] == 'L' ? 'D' : 'R';
+                        else
+                        {
+                            correctPossibleMoves.Remove(Allel.L);
+                            correctPossibleMoves.Remove(Allel.U);
+                            int index = random.Next(2);
+                            correctedSequence[i] = (char)correctPossibleMoves[index];
+                        }
                     }
                     else if (emptyTileX + 1 >= boardWidth && emptyTileY < 0 || emptyTileX >= boardWidth && emptyTileY - 1 < 0) //prawy górny róg
                     {
-                        correctedSequence[i] = correctedSequence[i] == 'L' ? 'D' : 'L';
+                        if (i > 0)
+                            correctedSequence[i] = correctedSequence[i - 1] == 'R' ? 'D' : 'L';
+                        else
+                        {
+                            correctPossibleMoves.Remove(Allel.R);
+                            correctPossibleMoves.Remove(Allel.U);
+                            int index = random.Next(2);
+                            correctedSequence[i] = (char)correctPossibleMoves[index];
+                        }
                     }
                     else if (emptyTileX - 1 < 0 && emptyTileY >= boardHeight || emptyTileX < 0 && emptyTileY + 1 >= boardHeight) //lewy dolny róg
                     {
-                        correctedSequence[i] = correctedSequence[i] == 'R' ? 'U' : 'R';
+                        if (i > 0)
+                            correctedSequence[i] = correctedSequence[i - 1] == 'L' ? 'U' : 'R';
+                        else
+                        {
+                            correctPossibleMoves.Remove(Allel.L);
+                            correctPossibleMoves.Remove(Allel.D);
+                            int index = random.Next(2);
+                            correctedSequence[i] = (char)correctPossibleMoves[index];
+                        }
                     }
                     else if (emptyTileX + 1 >= boardWidth && emptyTileY >= boardHeight || emptyTileX >= boardWidth && emptyTileY + 1 >= boardHeight) //prawy dolny róg
                     {
-                        correctedSequence[i] = correctedSequence[i] == 'L' ? 'U' : 'L';
+                        if (i > 0)
+                            correctedSequence[i] = correctedSequence[i - 1] == 'R' ? 'U' : 'L';
+                        else
+                        {
+                            correctPossibleMoves.Remove(Allel.R);
+                            correctPossibleMoves.Remove(Allel.D);
+                            int index = random.Next(2);
+                            correctedSequence[i] = (char)correctPossibleMoves[index];
+                        }
                     }
-                    else if(emptyTileX < 0) //lewa krawędź
+                    else if (emptyTileX < 0) //lewa krawędź
                     {
-                        correctPossibleMoves.Remove((Allel)sequence[i]);
-                        correctPossibleMoves.Remove(Allel.L);
-                        int index = random.Next(2);
-                        correctedSequence[i] = (char)correctPossibleMoves[index];
+                        if (i > 0)
+                        {
+                            Allel prevGene = sequence[i - 1] == 'L' ? Allel.R : sequence[i - 1] == 'U' ? Allel.D : Allel.U;
+                            correctPossibleMoves.Remove(prevGene);
+                        }
+                            correctPossibleMoves.Remove(Allel.L);
+                            int index = random.Next(correctPossibleMoves.Count);
+                            correctedSequence[i] = (char)correctPossibleMoves[index];
                     }
                     else if (emptyTileX >= boardWidth) //prawa krawędź
                     {
-                        correctPossibleMoves.Remove((Allel)sequence[i]);
-                        correctPossibleMoves.Remove(Allel.R);
-                        int index = random.Next(2);
-                        correctedSequence[i] = (char)correctPossibleMoves[index];
+                        if (i > 0)
+                        {
+                            Allel prevGene = sequence[i - 1] == 'R' ? Allel.L : sequence[i - 1] == 'U' ? Allel.D : Allel.U;
+                            correctPossibleMoves.Remove(prevGene);
+                        }
+                            correctPossibleMoves.Remove(Allel.R);
+                            int index = random.Next(correctPossibleMoves.Count);
+                            correctedSequence[i] = (char)correctPossibleMoves[index];
                     }
                     else if (emptyTileY < 0) //górna krawędź
                     {
-                        correctPossibleMoves.Remove((Allel)sequence[i]);
-                        correctPossibleMoves.Remove(Allel.U);
-                        int index = random.Next(2);
-                        correctedSequence[i] = (char)correctPossibleMoves[index];
+                        if (i > 0)
+                        {
+                            Allel prevGene = sequence[i - 1] == 'U' ? Allel.D : sequence[i - 1] == 'R' ? Allel.L : Allel.R;
+                            correctPossibleMoves.Remove(prevGene);
+                        }
+                            correctPossibleMoves.Remove(Allel.U);
+                            int index = random.Next(correctPossibleMoves.Count);
+                            correctedSequence[i] = (char)correctPossibleMoves[index];
                     }
                     else if (emptyTileY >= boardHeight) //dolna krawędź
                     {
+                        if (i > 0)
+                        {
+                            Allel prevGene = sequence[i - 1] == 'D' ? Allel.U : sequence[i - 1] == 'R' ? Allel.L : Allel.R;
+                            correctPossibleMoves.Remove(prevGene);
+                        }
+                            correctPossibleMoves.Remove(Allel.D);
+                            int index = random.Next(correctPossibleMoves.Count);
+                            correctedSequence[i] = (char)correctPossibleMoves[index];
+                    }
+                    //}
+                    /*
+                    else //nie ma poprzednika
+                    {
                         correctPossibleMoves.Remove((Allel)sequence[i]);
-                        correctPossibleMoves.Remove(Allel.D);
-                        int index = random.Next(2);
+                        int index = random.Next(3);
                         correctedSequence[i] = (char)correctPossibleMoves[index];
                     }
-                    /*
-                    Allel randomMove = (Allel)possibleMoves.GetValue(random.Next(possibleMoves.Length));
-                    correctedSequence[i] = (char)randomMove;
                     */
                     emptyTileX = tempEmptyTileX; emptyTileY = tempEmptyTileY;
 
