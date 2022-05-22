@@ -227,7 +227,7 @@ namespace WSI
             this.iterationLabel.Name = "iterationLabel";
             this.iterationLabel.Size = new System.Drawing.Size(97, 15);
             this.iterationLabel.TabIndex = 13;
-            this.iterationLabel.Text = "Iterations: 0/1000";
+            this.iterationLabel.Text = "Iterations: 0/100";
             // 
             // simulationLabel
             // 
@@ -356,7 +356,7 @@ namespace WSI
             this.maxNumberOfIterationsNumericUpDown.Size = new System.Drawing.Size(120, 23);
             this.maxNumberOfIterationsNumericUpDown.TabIndex = 1;
             this.maxNumberOfIterationsNumericUpDown.Value = new decimal(new int[] {
-            1000,
+            100,
             0,
             0,
             0});

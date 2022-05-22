@@ -10,27 +10,33 @@ namespace WSI.AlgorithmStuff
 {
     public class Solver
     {
-        public readonly CrossOverType crossOverType = CrossOverType.SinglePoint;
-        public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.ElitarismAndBestCrossOver;
-        public readonly NextPopulationSelection nextPopulationSelection = NextPopulationSelection.Best;
+        public readonly CrossOverType crossOverType = CrossOverType.NPoints;
+        public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.ElitarismAndRoulette;
+        public readonly NextPopulationSelection nextPopulationSelection = NextPopulationSelection.Roulette;
         private int[,] startingBoard;
         private int size;
         private readonly double lenghtMultiplier = 0.01D;
-        private readonly int populationSize = 400;
-        private readonly int chromosomeLength = 50;
-        private readonly double acceptanceValue = 0.31D;
-        private readonly double elitarismPercent = 0.2D;
+        private readonly int populationSize = 120;
+        private readonly int chromosomeLength = 31;
+        private readonly double acceptanceValue = 0.00D;
+        private readonly double elitarismPercent = 0.1D;
         private static readonly Random random = new();
         private readonly int nPointCrossOver = 5;
-        private readonly double geneticMutationChance = 0.001D;
+        private readonly double geneticMutationChance = 0.01D;
         private readonly double evolutionaryMutationChance = 0.5D;
-        private readonly double geneticAdditionChance = 0.5D;
-        private readonly double evolutionaryAdditionChance = 0.5D;
+        private readonly double geneticAdditionChance = 0.1D;
+        private readonly double evolutionaryAdditionChance = 0.2D;
         private int blankX = -1;
         private int blankY = -1;
 
+        private Population.Del fitnessFunction;
+        private delegate (double, int[,], int, int) Del(Chromosome chromosome, int[,] lastBoard, int tempBlankX, int tempBlankY, int moveIndex);
+        private Del fitnessFunctionSubStrings;
+
         public Solver(Board board)
         {
+            fitnessFunction = FitnessFunctionManhattanDistanceSubStrings;
+            fitnessFunctionSubStrings = FitnessFunctionManhattanDistance;
             size = board.size;
             startingBoard = new int[size, size];
 
@@ -75,24 +81,29 @@ namespace WSI.AlgorithmStuff
         public async Task<(StringBuilder, int)> GeneticAlgorithm(int maxIterations)
         {
             Population population = new Population();
-            population.FitnessFunction = FitnessFunctionManhattanDistance;
+            population.FitnessFunction = fitnessFunction;
             population.Children = new List<Chromosome>();
             population.Parents = Init.GetStartngChromosomes(populationSize, chromosomeLength);
             IList<Chromosome> newPopulation = new List<Chromosome>();
             IList<Chromosome> crossOverPopulation = new List<Chromosome>();
             int eliteSize = 0;
+            Mutation.MutateChance = geneticMutationChance;
+            Mutation.AddVsMutateChance = geneticAdditionChance;
 
             int iterationCount = 1;
             while (iterationCount <= maxIterations)
             {
-                Debug.WriteLine($"Genetic iteration: {iterationCount}");
-                StringBuilder isFinished = IsFinished(population.Parents);
-                if (isFinished != null)
-                    return (isFinished, iterationCount);
-
                 population.Parents = population.Sort(population.Parents);
+                (StringBuilder isFinished, double fitness) = IsFinished(population.Parents);
+                if (isFinished != null)
+                {
+                    Debug.WriteLine($"Genetic solution iteration: {iterationCount} best fitness: {fitness}");
+                    return (isFinished, iterationCount);
+                }
+
                 population.Children.Clear();
                 newPopulation.Clear();
+                Debug.WriteLine($"Genetic iteration: {iterationCount} best fitness: {fitness}");
 
                 // cross over
                 switch (chromosomesSelection)
@@ -127,10 +138,10 @@ namespace WSI.AlgorithmStuff
                         {
                             newPopulation.Add(population.Parents[i]);
                         }
-                        crossOverPopulation = population.SelectByRoulette(false, populationSize / 2);
+                        crossOverPopulation = population.SelectByRoulette(true, populationSize / 2);
                         break;
                     case ChromosomesSelection.Roulette:
-                        crossOverPopulation = population.SelectByRoulette(false, populationSize / 2);
+                        crossOverPopulation = population.SelectByRoulette(true, populationSize / 2);
                         break;
                 }
 
@@ -164,9 +175,6 @@ namespace WSI.AlgorithmStuff
                     population.Children.Add(childA);
                     population.Children.Add(childB);
                 }
-
-                Mutation.MutateChance = geneticMutationChance;
-                Mutation.AddVsMutateChance = geneticAdditionChance;
 
                 for(int i = 0; i < population.Children.Count; i++)
                 {
@@ -226,31 +234,55 @@ namespace WSI.AlgorithmStuff
 
             population.Parents = population.Sort(population.Parents);
 
-            Debug.WriteLine($"Genetic final solution fitness: {FitnessFunctionManhattanDistance(population.Parents[0])}");
+            double bestFitness = double.MaxValue;
+            StringBuilder bestSolution = new StringBuilder();
+            foreach (Chromosome chromosome in population.Parents)
+            {
+                int[,] board = startingBoard.Clone() as int[,];
+                int tempBlankX = blankX;
+                int tempBlankY = blankY;
+                double fitness = 0;
+                for (int i = 0; i < chromosome.Length; i++)
+                {
+                    (fitness, board, tempBlankX, tempBlankY) = fitnessFunctionSubStrings(chromosome, board, tempBlankX, tempBlankY, i);
+                    if(bestFitness > fitness)
+                    {
+                        bestFitness = fitness;
+                        bestSolution = new StringBuilder(chromosome.sequence.ToString().Substring(0, i + 1));
+                    }
+                }
+            }
 
-            return (population.Parents[0].sequence, iterationCount);
+            Debug.WriteLine($"Genetic final solution fitness: {bestFitness}");
+
+            return (bestSolution, iterationCount);
         }
 
         public async Task<(StringBuilder, int)> EvolutionaryAlgorithm(int maxIterations)
         {
             Population population = new Population();
-            population.FitnessFunction = FitnessFunctionManhattanDistance;
+            population.FitnessFunction = fitnessFunction;
             population.Children = new List<Chromosome>();
             population.Parents = Init.GetStartngChromosomes(populationSize, chromosomeLength);
             IList<Chromosome> newPopulation = new List<Chromosome>();
             int eliteSize = 0;
+            Mutation.MutateChance = evolutionaryMutationChance;
+            Mutation.AddVsMutateChance = evolutionaryAdditionChance;
 
             int iterationCount = 1;
             while (iterationCount <= maxIterations)
             {
-                Debug.WriteLine($"Evolutionary iteration: {iterationCount}");
-                StringBuilder isFinished = IsFinished(population.Parents);
-                if (isFinished != null)
-                    return (isFinished, iterationCount);
-
                 population.Parents = population.Sort(population.Parents);
+                (StringBuilder isFinished, double fitness) = IsFinished(population.Parents);
+                if (isFinished != null)
+                {
+                    Debug.WriteLine($"Evolutionary solution iteration: {iterationCount} best fitness: {fitness}");
+                    return (isFinished, iterationCount);
+                }
+
                 population.Children.Clear();
                 newPopulation.Clear();
+                Debug.WriteLine($"Evolutionary iteration: {iterationCount} best fitness: {fitness}");
 
                 switch (chromosomesSelection)
                 {
@@ -260,7 +292,6 @@ namespace WSI.AlgorithmStuff
                         {
                             newPopulation.Add(population.Parents[i]);
                         }
-                        population.Children = population.Parents;
 
                         break;
                     case ChromosomesSelection.ElitarismAndBestCrossOver:
@@ -269,14 +300,10 @@ namespace WSI.AlgorithmStuff
                         {
                             newPopulation.Add(population.Parents[i]);
                         }
-                        population.Children = population.SelectBests(populationSize);
-
                         break;
                     case ChromosomesSelection.BestCrossOver:
-                        population.Children = population.SelectBests(populationSize);
                         break;
                     case ChromosomesSelection.AllCrossOver:
-                        population.Children = population.Parents;
                         break;
                     case ChromosomesSelection.ElitarismAndRoulette:
                         eliteSize = (int)(elitarismPercent * populationSize);
@@ -284,17 +311,14 @@ namespace WSI.AlgorithmStuff
                         {
                             newPopulation.Add(population.Parents[i]);
                         }
-                        population.Children = population.SelectByRoulette(false, populationSize);
                         break;
                     case ChromosomesSelection.Roulette:
-                        population.Children = population.SelectByRoulette(false, populationSize);
                         break;
                 }
 
-                population.Parents.Clear();
+                population.Children = population.Parents;
 
-                Mutation.MutateChance = evolutionaryMutationChance;
-                Mutation.AddVsMutateChance = evolutionaryAdditionChance;
+                population.Parents = new List<Chromosome>();
 
                 for (int i = 0; i < population.Children.Count; i++)
                 {
@@ -345,39 +369,76 @@ namespace WSI.AlgorithmStuff
                         break;
                 }
 
-                population.Parents = newPopulation;
+                population.Parents = new List<Chromosome>(newPopulation);
 
                 iterationCount++;
             }
 
             population.Parents = population.Sort(population.Parents);
 
-            Debug.WriteLine($"Evolutionary final solution fitness: {FitnessFunctionManhattanDistance(population.Parents[0])}");
-
-            return (population.Parents[0].sequence, iterationCount);
-        }
-
-        private StringBuilder IsFinished(IList<Chromosome> chromosomes)
-        {
-            foreach(Chromosome chromosome in chromosomes)
+            double bestFitness = double.MaxValue;
+            StringBuilder bestSolution = new StringBuilder();
+            foreach (Chromosome chromosome in population.Parents)
             {
-                int [,] board = startingBoard.Clone() as int[,];
+                int[,] board = startingBoard.Clone() as int[,];
                 int tempBlankX = blankX;
                 int tempBlankY = blankY;
-                double distance = 0;
+                double fitness = 0;
                 for (int i = 0; i < chromosome.Length; i++)
                 {
-                    (distance, board, tempBlankX, tempBlankY) = FitnessFunctionManhattanDistance(chromosome, board, tempBlankX, tempBlankY, i);
-                    if (distance <= acceptanceValue)
+                    (fitness, board, tempBlankX, tempBlankY) = fitnessFunctionSubStrings(chromosome, board, tempBlankX, tempBlankY, i);
+                    if (bestFitness > fitness)
                     {
-                        //StringBuilder result = new StringBuilder();
-                        // corrected chromosome and return result
-                        return new StringBuilder(chromosome.sequence.ToString().Substring(0, i + 1));
+                        bestFitness = fitness;
+                        bestSolution = new StringBuilder(chromosome.sequence.ToString().Substring(0, i + 1));
                     }
                 }
             }
 
-            return null;
+            Debug.WriteLine($"Evolutionary final solution fitness: {bestFitness}");
+
+            return (bestSolution, iterationCount);
+        }
+
+        private (StringBuilder, double) IsFinished(IList<Chromosome> chromosomes)
+        {
+            double bestFitness = double.MaxValue;
+            foreach (Chromosome chromosome in chromosomes)
+            {
+                int [,] board = startingBoard.Clone() as int[,];
+                int tempBlankX = blankX;
+                int tempBlankY = blankY;
+                double fitness = 0;
+                for (int i = 0; i < chromosome.Length; i++)
+                {
+                    (fitness, board, tempBlankX, tempBlankY) = fitnessFunctionSubStrings(chromosome, board, tempBlankX, tempBlankY, i);
+                    bestFitness = Math.Min(fitness, bestFitness);
+                    if (fitness <= acceptanceValue)
+                    {
+                        //StringBuilder result = new StringBuilder();
+                        // corrected chromosome and return result
+                        return (new StringBuilder(chromosome.sequence.ToString().Substring(0, i + 1)), fitness);
+                    }
+                }
+            }
+
+            /*
+            int[,] board = startingBoard.Clone() as int[,];
+            int tempBlankX = blankX;
+            int tempBlankY = blankY;
+            double distance = 0;
+            for (int i = 0; i < chromosomes[0].Length; i++)
+            {
+                (distance, board, tempBlankX, tempBlankY) = fitnessFunctionSubStrings(chromosomes[0], board, tempBlankX, tempBlankY, i);
+                if (distance <= acceptanceValue)
+                {
+                    //StringBuilder result = new StringBuilder();
+                    // corrected chromosome and return result
+                    return new StringBuilder(chromosomes[0].sequence.ToString().Substring(0, i + 1));
+                }
+            }*/
+
+            return (null, bestFitness);
         }
 
         private (double, int[,], int, int) FitnessFunctionManhattanDistance(Chromosome chromosome, int[,] lastBoard, int tempBlankX, int tempBlankY, int moveIndex)
@@ -412,6 +473,51 @@ namespace WSI.AlgorithmStuff
             return distance;
         }
 
+        private double FitnessFunctionManhattanDistanceSubStrings(Chromosome chromosome)
+        {
+            double bestFitness = double.MaxValue;
+            int[,] board = startingBoard.Clone() as int[,];
+            int tempBlankX = blankX;
+            int tempBlankY = blankY;
+            double fitness;
+            for (int moveIndex = 0; moveIndex < chromosome.Length; moveIndex++)
+            {
+                (board, tempBlankX, tempBlankY) = ApplyMove(chromosome, board, tempBlankX, tempBlankY, moveIndex);
+                fitness = 0;
+                for (int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        fitness += Math.Abs(board[i, j] / size - j) + Math.Abs(board[i, j] % size - i);
+                    }
+                }
+                //distance /= size * size;
+                fitness += (moveIndex + 1) * lenghtMultiplier;
+
+                if(bestFitness > fitness)
+                {
+                    bestFitness = fitness;
+                }
+            }
+            return bestFitness;
+        }
+
+        private (double, int[,], int, int) FitnessFunctionEuclideanDistance(Chromosome chromosome, int[,] lastBoard, int tempBlankX, int tempBlankY, int moveIndex)
+        {
+            (lastBoard, tempBlankX, tempBlankY) = ApplyMove(chromosome, lastBoard, tempBlankX, tempBlankY, moveIndex);
+            double distance = 0;
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    distance += Math.Pow(lastBoard[i, j] / size - j, 2) + Math.Pow(lastBoard[i, j] % size - i, 2);
+                }
+            }
+            //distance /= size * size;
+            distance += (moveIndex + 1) * lenghtMultiplier;
+            return (distance, lastBoard, tempBlankX, tempBlankY);
+        }
+
         private double FitnessFunctionEuclideanDistance(Chromosome chromosome)
         {
             double distance = 0;
@@ -426,6 +532,35 @@ namespace WSI.AlgorithmStuff
             //distance /= size * size;
             distance += chromosome.Length * lenghtMultiplier;
             return distance;
+        }
+
+        private double FitnessFunctionEuclideanDistanceSubStrings(Chromosome chromosome)
+        {
+            double bestFitness = double.MaxValue;
+            int[,] board = startingBoard.Clone() as int[,];
+            int tempBlankX = blankX;
+            int tempBlankY = blankY;
+            double fitness;
+            for (int moveIndex = 0; moveIndex < chromosome.Length; moveIndex++)
+            {
+                (board, tempBlankX, tempBlankY) = ApplyMove(chromosome, board, tempBlankX, tempBlankY, moveIndex);
+                fitness = 0;
+                for (int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        fitness += Math.Pow(board[i, j] / size - j, 2) + Math.Pow(board[i, j] % size - i, 2);
+                    }
+                }
+                //distance /= size * size;
+                fitness += (moveIndex + 1) * lenghtMultiplier;
+
+                if (bestFitness > fitness)
+                {
+                    bestFitness = fitness;
+                }
+            }
+            return bestFitness;
         }
 
         private (int[,], int, int) ApplyMove(Chromosome chromosome, int[,] board, int tempBlankX, int tempBlankY, int index)
