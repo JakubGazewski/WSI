@@ -10,9 +10,9 @@ namespace WSI.AlgorithmStuff
 {
     public class Solver
     {
-        public readonly CrossOverType crossOverType = CrossOverType.SinglePoint;
-        public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.ElitarismAndRoulette;
-        public readonly NextPopulationSelection nextPopulationSelection = NextPopulationSelection.Roulette;
+        public readonly CrossOverType crossOverType = CrossOverType.NPoints;
+        public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.Elitarism;
+        public readonly NextPopulationSelection nextPopulationSelection = NextPopulationSelection.Best;
         private int[,] startingBoard;
         private int size;
         private readonly double lenghtMultiplier = 0.01D;
@@ -61,24 +61,23 @@ namespace WSI.AlgorithmStuff
             switch(choice)
             {
                 case AlgorithmChoice.Genetic:
-                    var genetic = GeneticAlgorithm(maxIterations);
-                    var resultGenetic = await Task.WhenAll(genetic);
-                    return (resultGenetic[0].Item1, resultGenetic[0].Item2, null, 0);
+                    var resultGenetic = GeneticAlgorithm(maxIterations);
+                    return (resultGenetic.Item1, resultGenetic.Item2, null, 0);
                 case AlgorithmChoice.Evolution:
-                    var evolutionary = EvolutionaryAlgorithm(maxIterations);
-                    var resultEvolutionary = await Task.WhenAll(evolutionary);
-                    return (resultEvolutionary[0].Item1, resultEvolutionary[0].Item2, null, 0);
+                    var resultEvolutionary = EvolutionaryAlgorithm(maxIterations);
+                    return (resultEvolutionary.Item1, resultEvolutionary.Item2, null, 0);
                 case AlgorithmChoice.Both:
-                    var geneticBoth = GeneticAlgorithm(maxIterations);
-                    var evolutionaryBoth = EvolutionaryAlgorithm(maxIterations);
-                    var result = await Task.WhenAll(geneticBoth, evolutionaryBoth);
-                    return (result[0].Item1, result[0].Item2, result[1].Item1, result[1].Item2);
+                    var geneticTask = Task.Run(() => GeneticAlgorithm(maxIterations));
+                    var evolutionaryTask = Task.Run(() => EvolutionaryAlgorithm(maxIterations));
+                    var resultGeneticBoth = await geneticTask;
+                    var resultEvolutionaryBoth = await evolutionaryTask;
+                    return (resultGeneticBoth.Item1, resultGeneticBoth.Item2, resultEvolutionaryBoth.Item1, resultEvolutionaryBoth.Item2);
             }
 
             return (null, 0, null, 0);
         }
 
-        public async Task<(StringBuilder, int)> GeneticAlgorithm(int maxIterations)
+        public (StringBuilder, int) GeneticAlgorithm(int maxIterations)
         {
             Population population = new Population();
             population.FitnessFunction = fitnessFunction;
@@ -259,7 +258,7 @@ namespace WSI.AlgorithmStuff
             return (bestSolution, iterationCount);
         }
 
-        public async Task<(StringBuilder, int)> EvolutionaryAlgorithm(int maxIterations)
+        public (StringBuilder, int) EvolutionaryAlgorithm(int maxIterations)
         {
             Population population = new Population();
             population.FitnessFunction = fitnessFunction;
