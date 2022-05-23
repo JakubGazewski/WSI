@@ -69,8 +69,9 @@ namespace WSI.AlgorithmStuff
                 case AlgorithmChoice.Both:
                     var geneticTask = Task.Run(() => GeneticAlgorithm(maxIterations));
                     var evolutionaryTask = Task.Run(() => EvolutionaryAlgorithm(maxIterations));
-                    var resultGeneticBoth = await geneticTask;
-                    var resultEvolutionaryBoth = await evolutionaryTask;
+                    Task.WaitAll(new [] { geneticTask, evolutionaryTask });
+                    var resultGeneticBoth = geneticTask.Result;
+                    var resultEvolutionaryBoth = evolutionaryTask.Result;
                     return (resultGeneticBoth.Item1, resultGeneticBoth.Item2, resultEvolutionaryBoth.Item1, resultEvolutionaryBoth.Item2);
             }
 
