@@ -10,7 +10,7 @@ namespace WSI.AlgorithmStuff
 {
     public class Solver
     {
-        public readonly CrossOverType crossOverType = CrossOverType.NPoints;
+        public readonly CrossOverType crossOverType = CrossOverType.SinglePoint;
         public readonly ChromosomesSelection chromosomesSelection = ChromosomesSelection.ElitarismAndRoulette;
         public readonly NextPopulationSelection nextPopulationSelection = NextPopulationSelection.Roulette;
         private int[,] startingBoard;
@@ -112,7 +112,7 @@ namespace WSI.AlgorithmStuff
                         eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0;i< eliteSize;i++)
                         {
-                            newPopulation.Add(population.Parents[i]);
+                            newPopulation.Add(population.Parents[i].DeepCopy());
                         }
                         crossOverPopulation = population.Parents;
 
@@ -121,7 +121,7 @@ namespace WSI.AlgorithmStuff
                         eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0; i < eliteSize; i++)
                         {
-                            newPopulation.Add(population.Parents[i]);
+                            newPopulation.Add(population.Parents[i].DeepCopy());
                         }
                         crossOverPopulation = population.SelectBests(populationSize / 2);
 
@@ -130,13 +130,13 @@ namespace WSI.AlgorithmStuff
                         crossOverPopulation = population.SelectBests(populationSize / 2);
                         break;
                     case ChromosomesSelection.AllCrossOver:
-                        crossOverPopulation = population.Parents;
+                        crossOverPopulation = new List<Chromosome>(population.Parents);
                         break;
                     case ChromosomesSelection.ElitarismAndRoulette:
                         eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0; i < eliteSize; i++)
                         {
-                            newPopulation.Add(population.Parents[i]);
+                            newPopulation.Add(population.Parents[i].DeepCopy());
                         }
                         crossOverPopulation = population.SelectByRoulette(true, populationSize / 2);
                         break;
@@ -182,47 +182,48 @@ namespace WSI.AlgorithmStuff
                 }
 
                 IList<Chromosome> candidates = new List<Chromosome>();
+                /*IList<Chromosome> candidates = new List<Chromosome>();
                 for(int i = 0;i< population.Children.Count; i++)
                 {
                     candidates.Add(population.Children[i]);
-                }
+                }*/
 
-                switch(nextPopulationSelection)
+                switch (nextPopulationSelection)
                 {
                     case NextPopulationSelection.Children:
-                        population.Children = candidates;
+                        //population.Children = candidates;
                         if (population.Children.Count < populationSize)
                             throw new ArgumentException();
                         candidates = population.SelectChildren(populationSize - eliteSize);
                         for(int i = 0; i< candidates.Count; i++)
                         {
-                            newPopulation.Add(candidates[i]);
+                            newPopulation.Add(candidates[i].DeepCopy());
                         }
                         break;
                     case NextPopulationSelection.RouletteChildren:
-                        population.Children = candidates;
+                        //population.Children = candidates;
                         if (population.Children.Count < populationSize)
                             throw new ArgumentException();
                         candidates = population.SelectByRoulette(false, populationSize - eliteSize);
                         for (int i = 0; i < candidates.Count; i++)
                         {
-                            newPopulation.Add(candidates[i]);
+                            newPopulation.Add(candidates[i].DeepCopy());
                         }
                         break;
                     case NextPopulationSelection.Roulette:
-                        population.Children = candidates;
+                        //population.Children = candidates;
                         candidates = population.SelectByRoulette(true, populationSize - eliteSize);
                         for(int i = 0;i< candidates.Count; i++)
                         {
-                            newPopulation.Add(candidates[i]);
+                            newPopulation.Add(candidates[i].DeepCopy());
                         }
                         break;
                     case NextPopulationSelection.Best:
-                        population.Children = candidates;
+                        //population.Children = candidates;
                         candidates = population.SelectBests(populationSize - eliteSize);
                         for (int i = 0; i < candidates.Count; i++)
                         {
-                            newPopulation.Add(candidates[i]);
+                            newPopulation.Add(candidates[i].DeepCopy());
                         }
                         break;
                 }
@@ -290,7 +291,7 @@ namespace WSI.AlgorithmStuff
                         eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0; i < eliteSize; i++)
                         {
-                            newPopulation.Add(population.Parents[i]);
+                            newPopulation.Add(population.Parents[i].DeepCopy());
                         }
 
                         break;
@@ -298,7 +299,7 @@ namespace WSI.AlgorithmStuff
                         eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0; i < eliteSize; i++)
                         {
-                            newPopulation.Add(population.Parents[i]);
+                            newPopulation.Add(population.Parents[i].DeepCopy());
                         }
                         break;
                     case ChromosomesSelection.BestCrossOver:
@@ -309,14 +310,14 @@ namespace WSI.AlgorithmStuff
                         eliteSize = (int)(elitarismPercent * populationSize);
                         for (int i = 0; i < eliteSize; i++)
                         {
-                            newPopulation.Add(population.Parents[i]);
+                            newPopulation.Add(population.Parents[i].DeepCopy());
                         }
                         break;
                     case ChromosomesSelection.Roulette:
                         break;
                 }
 
-                population.Children = population.Parents;
+                population.Children = new List<Chromosome>(population.Parents);
 
                 population.Parents = new List<Chromosome>();
 
@@ -326,45 +327,45 @@ namespace WSI.AlgorithmStuff
                 }
 
                 IList<Chromosome> candidates = new List<Chromosome>();
-                for (int i = 0; i < population.Children.Count; i++)
+                /*for (int i = 0; i < population.Children.Count; i++)
                 {
                     candidates.Add(population.Children[i]);
-                }
+                }*/
 
                 switch (nextPopulationSelection)
                 {
                     case NextPopulationSelection.Children:
-                        population.Children = candidates;
+                        //population.Children = candidates;
                         if (population.Children.Count < populationSize)
                             throw new ArgumentException();
                         candidates = population.SelectChildren(populationSize - eliteSize);
                         for (int i = 0; i < candidates.Count; i++)
                         {
-                            newPopulation.Add(candidates[i]);
+                            newPopulation.Add(candidates[i].DeepCopy());
                         }
                         break;
                     case NextPopulationSelection.RouletteChildren:
-                        population.Children = candidates;
+                        //population.Children = candidates;
                         if (population.Children.Count < populationSize)
                             throw new ArgumentException();
                         candidates = population.SelectByRoulette(false, populationSize - eliteSize);
                         for (int i = 0; i < candidates.Count; i++)
                         {
-                            newPopulation.Add(candidates[i]);
+                            newPopulation.Add(candidates[i].DeepCopy());
                         }
                         break;
                     case NextPopulationSelection.Roulette:
                         candidates = population.SelectByRoulette(true, populationSize - eliteSize);
                         for (int i = 0; i < candidates.Count; i++)
                         {
-                            newPopulation.Add(candidates[i]);
+                            newPopulation.Add(candidates[i].DeepCopy());
                         }
                         break;
                     case NextPopulationSelection.Best:
                         candidates = population.SelectBests(populationSize - eliteSize);
                         for (int i = 0; i < candidates.Count; i++)
                         {
-                            newPopulation.Add(candidates[i]);
+                            newPopulation.Add(candidates[i].DeepCopy());
                         }
                         break;
                 }

@@ -32,6 +32,13 @@ namespace WSI.AlgorithmStuff
             sequence = new StringBuilder();
         }
 
+        public Chromosome DeepCopy()
+        {
+            Chromosome chromosome = new Chromosome();
+            chromosome.sequence = new StringBuilder(sequence.ToString());
+            return chromosome;
+        }
+
         // sprawdzenie czy nie ma ruchu poza planszę
         public bool CheckCorectness()
         {
